@@ -1,5 +1,6 @@
 #include "Painter.h"
 #include <cairo-svg.h>
+#include <cmath>
 #include "Color.h"
 
 namespace jlib {
@@ -35,14 +36,22 @@ void Painter::DrawLine(Point p0, Point p1) {
 }
 
 void Painter::DrawText(Point p, const std::string& text) {
-    cairo_set_source_rgb(storage_.cr, Color::Percent(DIM_R(pen_->color())), Color::Percent(DIM_G(pen_->color())), Color::Percent(DIM_B(pen_->color())));
+    cairo_set_source_rgba(storage_.cr,
+                          Color::Percent(DIM_R(pen_->color())),
+                          Color::Percent(DIM_G(pen_->color())),
+                          Color::Percent(DIM_B(pen_->color())),
+                          Color::Percent(DIM_X(pen_->color())));
     cairo_set_font_size(storage_.cr, pen_->font_size());
     cairo_move_to(storage_.cr, p.x, p.y);
     cairo_show_text(storage_.cr, text.c_str());
 }
 
 void Painter::DrawCurve(Point b, Point c0, Point c1, Point c2) {
-    cairo_set_source_rgb(storage_.cr, Color::Percent(DIM_R(pen_->color())), Color::Percent(DIM_G(pen_->color())), Color::Percent(DIM_B(pen_->color())));
+    cairo_set_source_rgba(storage_.cr,
+                          Color::Percent(DIM_R(pen_->color())),
+                          Color::Percent(DIM_G(pen_->color())),
+                          Color::Percent(DIM_B(pen_->color())),
+                          Color::Percent(DIM_X(pen_->color())));
     cairo_set_line_width(storage_.cr, pen_->line_width());
     cairo_move_to(storage_.cr, b.x, b.y);
     cairo_curve_to(storage_.cr, c0.x, c0.y, c1.x, c1.y, c2.x, c2.y);
@@ -93,6 +102,25 @@ void Painter::DrawImage(const Point &pos, Pixmap *pixmap, double ratio) {
     cairo_destroy(cr);
     cairo_surface_destroy(orig_image);
     cairo_surface_destroy(image);
+}
+
+void Painter::DrawRect(Point b, int rectWidth, int rectHeight, int cornerRadius) {
+    int x = b.x, y = b.y;
+    cairo_move_to(storage_.cr, x + cornerRadius, y);
+    cairo_line_to(storage_.cr, x + rectWidth - cornerRadius, y);
+    cairo_arc(storage_.cr, x + rectWidth - cornerRadius, y + cornerRadius, cornerRadius, -M_PI_2, 0);
+    cairo_line_to(storage_.cr, x + rectWidth, y + rectHeight - cornerRadius);
+    cairo_arc(storage_.cr, x + rectWidth - cornerRadius, y + rectHeight - cornerRadius, cornerRadius, 0, M_PI_2);
+    cairo_line_to(storage_.cr, x + cornerRadius, y + rectHeight);
+    cairo_arc(storage_.cr, x + cornerRadius, y + rectHeight - cornerRadius, cornerRadius, M_PI_2, M_PI);
+    cairo_line_to(storage_.cr, x, y + cornerRadius);
+    cairo_arc(storage_.cr, x + cornerRadius, y + cornerRadius, cornerRadius, M_PI, -M_PI_2);
+    cairo_set_source_rgba(storage_.cr,
+                         Color::Percent(DIM_R(pen_->color())),
+                         Color::Percent(DIM_G(pen_->color())),
+                         Color::Percent(DIM_B(pen_->color())),
+                         Color::Percent(DIM_X(pen_->color())));
+    cairo_fill(storage_.cr);
 }
 
 

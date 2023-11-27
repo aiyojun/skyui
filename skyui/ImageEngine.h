@@ -8,7 +8,11 @@ namespace jlib {
 
 class ImageEngine {
 public:
-    XPixmap Read(const char *filename);
+    ImageEngine();
+
+    Pixmap Read(const char *filename);
+
+    void Blur(Pixmap& pixmap, int radius, int sigma);
 };
 
 }

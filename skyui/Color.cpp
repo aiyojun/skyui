@@ -15,10 +15,21 @@ color_t decompose(xrgb_t c)
 xrgb_t compose(color_t c)
 { return Color::Compose(c.a, c.r, c.g, c.b); }
 
-xrgb_t Color::Blend(xrgb_t x, xrgb_t y, float factor)
-{ return Compose(static_cast<unsigned int>(factor * DIM_R(x) + (1 - factor) * DIM_R(y)),
-                 static_cast<unsigned int>(factor * DIM_G(x) + (1 - factor) * DIM_G(y)),
-                 static_cast<unsigned int>(factor * DIM_B(x) + (1 - factor) * DIM_B(y))); }
+xrgb_t Color::Blend(xrgb_t x, xrgb_t y) {
+    float a0 = (float) DIM_X(x) / 255, a1 = (float) DIM_X(y) / 255;
+    unsigned int r0 = DIM_R(x), r1 = DIM_R(y);
+    unsigned int g0 = DIM_G(x), g1 = DIM_G(y);
+    unsigned int b0 = DIM_B(x), b1 = DIM_B(y);
+    return Compose(255 * (a0 + a1 - a0 * a1),
+                   r0 * a0 * (1 - a1) + r1 * a1,
+                   g0 * a0 * (1 - a1) + g1 * a1,
+                   b0 * a0 * (1 - a1) + b1 * a1);
+}
+
+//xrgb_t Color::Blend(xrgb_t x, xrgb_t y, float factor)
+//{ return Compose(static_cast<unsigned int>(factor * DIM_R(x) + (1 - factor) * DIM_R(y)),
+//                 static_cast<unsigned int>(factor * DIM_G(x) + (1 - factor) * DIM_G(y)),
+//                 static_cast<unsigned int>(factor * DIM_B(x) + (1 - factor) * DIM_B(y))); }
 
 xrgb_t Color::Strength(xrgb_t xrgb, unsigned char gray) {
     const double f = 1.0 * gray / 255;

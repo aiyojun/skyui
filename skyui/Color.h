@@ -21,12 +21,13 @@ xrgb_t  compose(color_t c);
 
 class Color {
 public:
-    static xrgb_t Compose(xrgb_t X, xrgb_t r, xrgb_t g, xrgb_t b)
-    { return (r & 0xFF) << 24 | (r & 0xFF) << 16 | (g & 0xFF) << 8 | (b & 0xFF); }
+    static xrgb_t Compose(xrgb_t x, xrgb_t r, xrgb_t g, xrgb_t b)
+    { return (x & 0xFF) << 24 | (r & 0xFF) << 16 | (g & 0xFF) << 8 | (b & 0xFF); }
     static xrgb_t Compose(xrgb_t r, xrgb_t g, xrgb_t b)
     { return (r & 0xFF) << 16 | (g & 0xFF) << 8 | (b & 0xFF); }
     static xrgb_t Mix(const std::vector<xrgb_t>& vec);
-    static xrgb_t Blend(xrgb_t x, xrgb_t y, float factor);
+    static xrgb_t Blend(xrgb_t x, xrgb_t y);
+//    static xrgb_t Blend(xrgb_t x, xrgb_t y, float factor);
     static xrgb_t Strength(xrgb_t xrgb, unsigned char gray);
     static unsigned char GammaCorrect(unsigned char pixel, float gamma);
     static xrgb_t GammaCorrect(xrgb_t pixel, float gamma);

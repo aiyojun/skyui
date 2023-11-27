@@ -22,6 +22,7 @@ public:
     void DrawImage(const Point& pos, const Size& size, const std::string& filename);
     void DrawImage(const Point& pos, const Size& size, Pixmap *image);
     void DrawImage(const Point& pos, Pixmap *image, double ratio);
+    void DrawRect(Point b, int w, int h, int r);
     void set_pen(Pen *pen) { pen_ = pen; }
 private:
     struct CairoStorage { cairo_surface_t *surface; cairo_t *cr; };

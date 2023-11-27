@@ -8,8 +8,8 @@ namespace jlib {
     // Create();
 // }
 
-Window::Window(Pixmap* bitmap, int x, int y, const char* title)
-    : width_(bitmap->width()), height_(bitmap->height()), x_(x), y_(y), title_(title), fb_(bitmap->data()) {
+Window::Window(Pixmap* pixmap, int x, int y, const char* title)
+    : width_(pixmap->width()), height_(pixmap->height()), x_(x), y_(y), title_(title), fb_(pixmap->data()) {
     Create();
 }
 
@@ -53,6 +53,11 @@ void Window::Create() {
     if (!gc_) throw std::runtime_error("error: fail to create gc.");
     frame_ = XCreateImage(dsp_, vsInfo_.visual, vsInfo_.depth,
                           ZPixmap, 0, reinterpret_cast<char *>(fb_), width_, height_, 8, width_ * 4);
+    XSizeHints hints;
+    hints.x = x_;
+    hints.y = y_;
+    hints.flags = PPosition;
+    XSetWMNormalHints(dsp_, win_, &hints);
     XMapWindow(dsp_, win_);
     XFlush(dsp_);
 }

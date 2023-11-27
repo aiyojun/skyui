@@ -13,8 +13,7 @@ namespace jlib {
 
 class Window {
 public:
-    // Window(int width, int height, int x, int y, const char *title);
-    Window(Pixmap *bitmap, int x, int y, const char *title);
+    Window(Pixmap *pixmap, int x, int y, const char *title);
     ~Window();
     void Run();
 private:

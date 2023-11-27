@@ -6,8 +6,8 @@ namespace jlib {
 
 class Size {
 public:
-    int width;
-    int height;
+    size_t width;
+    size_t height;
 };
 
 }
