@@ -5,8 +5,14 @@
 
 namespace jlib {
 
-Painter::Painter(Pixmap* canvas) : canvas_(canvas), pen_(nullptr) {
-    Prepare();
+Painter::Painter(const Pixmap& canvas) : canvas_(canvas), pen_(nullptr), storage_{
+    cairo_image_surface_create_for_data(
+            (unsigned char *) canvas.data(),
+            CAIRO_FORMAT_RGB24, (int) canvas.width(),
+            (int) canvas.height(), (int)canvas.width() * 4),
+    cairo_create(storage_.surface)
+} {
+
 }
 
 Painter::~Painter() {
@@ -14,8 +20,7 @@ Painter::~Painter() {
 }
 
 void Painter::Prepare() {
-    storage_.surface = cairo_image_surface_create_for_data((unsigned char *) canvas_->data(), CAIRO_FORMAT_RGB24, canvas_->width(), canvas_->height(), canvas_->width() * 4);
-    storage_.cr = cairo_create(storage_.surface);
+
 }
 
 void Painter::Dispose() {
@@ -24,8 +29,8 @@ void Painter::Dispose() {
 }
 
 void Painter::Clear(xrgb_t color) {
-    const int size = canvas_->width() * canvas_->height();
-    xrgb_t *fb = canvas_->data();
+    const int size = canvas_.width() * canvas_.height();
+    xrgb_t *fb = canvas_.data();
     for (int i = 0; i < size; i++)
         fb[i] = color;
 }
@@ -104,7 +109,7 @@ void Painter::DrawImage(const Point &pos, Pixmap *pixmap, double ratio) {
     cairo_surface_destroy(image);
 }
 
-void Painter::DrawRect(Point b, int rectWidth, int rectHeight, int cornerRadius) {
+void Painter::DrawRect(Point b, size_t rectWidth, size_t rectHeight, size_t cornerRadius) {
     int x = b.x, y = b.y;
     cairo_move_to(storage_.cr, x + cornerRadius, y);
     cairo_line_to(storage_.cr, x + rectWidth - cornerRadius, y);

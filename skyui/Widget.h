@@ -1,19 +1,9 @@
-#ifndef GWF_WIDGET_H
-#define GWF_WIDGET_H
+#ifndef WIDGET_H
+#define WIDGET_H
 
 #include <string>
 
 namespace jlib {
-
-class Event {};
-
-class MouseEvent : public Event {
-public:
-    int x() const { return x_; }
-    int y() const { return y_; }
-private:
-    int x_, y_;
-};
 
 class Widget {
 public:
@@ -24,7 +14,7 @@ public:
     void setPosition() {}
     void show() {}
     void hide() {}
-    virtual void onClick(MouseEvent e);
+//    virtual void onClick(MouseEvent e);
 private:
     std::string id_;
     int x_, y_, width_, height_;
@@ -35,4 +25,4 @@ private:
 
 } // jlib
 
-#endif //GWF_WIDGET_H
+#endif //WIDGET_H

@@ -1,18 +1,18 @@
-#ifndef SKYUIDEMO_SKYUI_H
-#define SKYUIDEMO_SKYUI_H
+#ifndef SKYUI_H
+#define SKYUI_H
 
 #include "./Application.h"
+#include "./basic_ds.h"
 #include "./Color.h"
 #include "./Compositor.h"
+#include "./Event.h"
 #include "./FontEngine.h"
 #include "./ImageEngine.h"
 #include "./Painter.h"
 #include "./Pen.h"
 #include "./Pixmap.h"
-#include "./Point.h"
-#include "./Size.h"
 #include "./View.h"
 #include "./Widget.h"
 #include "./Window.h"
 
-#endif //SKYUIDEMO_SKYUI_H
+#endif //SKYUI_H

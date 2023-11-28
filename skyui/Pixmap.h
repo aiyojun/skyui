@@ -2,9 +2,8 @@
 #define BITMAP_H
 
 #include <memory>
-#include "Point.h"
-#include "Size.h"
 #include "Color.h"
+#include "basic_ds.h"
 
 namespace jlib {
 
@@ -19,10 +18,13 @@ public:
     size_t  width() const { return empty() ? 0 : ref_->width(); }
     size_t height() const { return empty() ? 0 : ref_->height(); }
     xrgb_t  *data() const { return ref_->data(); }
+    Size     size() const { return {width(), height()}; }
     void    fill(xrgb_t color);
     void overlay(const basic_pixmap& pxm, const Point& pos);
     void   blend(const basic_pixmap& pxm, const Point& pos);
-    static basic_pixmap mask(const basic_pixmap& pxm, const basic_pixmap& mask);
+    basic_pixmap mask(const basic_pixmap& msk) const
+    { return basic_pixmap::mask(*this, msk); }
+    static basic_pixmap mask(const basic_pixmap& pxm, const basic_pixmap& msk);
 private:
     class Storage {
     public:

@@ -4,24 +4,24 @@
 namespace jlib {
 
 Application::Application(int argc, char* argv[]) {
-    Prepare();
+    prepare();
 }
 
 Application::~Application() {
-    Dispose();
+    dispose();
 }
 
-void Application::Prepare() {
-
-}
-
-void Application::Dispose() {
+void Application::prepare() {
 
 }
 
+void Application::dispose() {
 
-int Application::Run(Window *window) {
-    window->Run();
+}
+
+
+int Application::run(Window *window) {
+    window->run();
     return 0;
 }
 

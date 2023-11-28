@@ -168,21 +168,23 @@ namespace jlib {
 
     void basic_pixmap::overlay(const basic_pixmap &pxm, const Point &pos) {
         xrgb_t *srcImg = data(), *dstImg = pxm.data();
-        int w = pxm.width();
-        if (pos.x + w > width())
-            w = width() - pos.x;
+        size_t srcWidth = width();
+        size_t w = pxm.width();
+        if (pos.x + w > srcWidth)
+            w = srcWidth - pos.x;
         for (int j = 0; j < pxm.height(); j++) {
-            memcpy(srcImg + (pos.y + j) * width() + pos.x, dstImg + j * pxm.width(), sizeof(xrgb_t) * w);
+            memcpy(srcImg + (pos.y + j) * srcWidth + pos.x, dstImg + j * pxm.width(), sizeof(xrgb_t) * w);
         }
     }
 
     void basic_pixmap::blend(const basic_pixmap &pxm, const Point &p) {
         xrgb_t *srcImg = data(), *dstImg = pxm.data();
+        size_t srcWidth = width();
         for (int j = 0; j < pxm.height(); j++) {
             for (int i = 0; i < pxm.width(); i++) {
-                if (p.x + i >= 0 && p.y + j >=0 && p.x + i < width() && p.y + j < height()) {
-                    auto& bc = srcImg[width() * (p.y + j) + p.x + i];
-                    auto& fc = dstImg[width() * j + i];
+                if (p.x + i >= 0 && p.y + j >= 0 && p.x + i < srcWidth && p.y + j < height()) {
+                    auto& bc = srcImg[srcWidth * (p.y + j) + p.x + i];
+                    auto& fc = dstImg[pxm.width() * j + i];
                     bc = Color::Blend(bc, fc);
                 }
             }
@@ -198,7 +200,12 @@ namespace jlib {
         for (int j = 0; j < mask.height(); j++) {
             for (int i = 0; i < width; i++) {
                 auto index = width * j + i;
-                ptr[index] = (0xFF000000 & msk[index]) | (0x00FFFFFF & raw[index]);
+                auto xc = DIM_X(msk[index]);
+                if (xc == 0) {
+                    ptr[index] = 0x00FFFFFF & raw[index];
+                }else {
+                    ptr[index] = Color::Transparent(raw[index], (float) xc / 255);
+                }
             }
         }
         return dst;

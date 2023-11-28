@@ -1,5 +1,5 @@
-#ifndef GWF_PEN_H
-#define GWF_PEN_H
+#ifndef PEN_H
+#define PEN_H
 
 #include <string>
 #include "Color.h"
@@ -29,4 +29,4 @@ private:
 
 } // jlib
 
-#endif //GWF_PEN_H
+#endif //PEN_H

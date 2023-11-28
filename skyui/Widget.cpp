@@ -3,8 +3,8 @@
 
 namespace jlib {
 
-void Widget::onClick(MouseEvent e) {
-    printf("event:click (%d, %d)\n", e.x(), e.y());
-}
+//void Widget::onClick(MouseEvent e) {
+//    printf("event:click (%d, %d)\n", e.x(), e.y());
+//}
 
 } // jlib

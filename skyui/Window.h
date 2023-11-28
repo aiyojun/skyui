@@ -1,34 +1,36 @@
 #ifndef WINDOW_H
 #define WINDOW_H
+
 #include <string>
-#include <X11/X.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-
+#include <algorithm>
 #include "Pixmap.h"
-
-using XWindow = ::Window;
+#include "Event.h"
+#include "Compositor.h"
 
 namespace jlib {
 
 class Window {
 public:
-    Window(Pixmap *pixmap, int x, int y, const char *title);
+    Window(const Pixmap& pixmap, int x, int y, const char *title);
     ~Window();
-    void Run();
+    void run();
+    void update();
+    void addEventListener(EventListener *listener)
+    { listeners_.emplace_back(listener); }
+    void removeEventListener(EventListener *listener)
+    { listeners_.erase(std::find(listeners_.begin(), listeners_.end(), listener)); }
 private:
-    void Create();
-    void Dispose();
-    int width_, height_, x_, y_;
+    class PrivateWindow;
+    using AutoPrivateWindow = std::shared_ptr<PrivateWindow>;
+    void create();
+    void dispose();
+    void dispatch(const Event& e);
+    int     x_, y_;
     std::string title_;
-    Display*    dsp_;
-    XWindow     win_;
-    XWindow     root_;
-    GC          gc_;
-    XImage*     frame_;
-    XVisualInfo vsInfo_;
-    XSetWindowAttributes win_attrs_;
-    xrgb_t*       fb_;
+    size_t  width_, height_;
+    xrgb_t *framebuffer_;
+    AutoPrivateWindow impl_;
+    std::vector<EventListener*> listeners_;
 };
 
 } // jlib

@@ -2,7 +2,6 @@
 #include <stdexcept>
 #include <vector>
 #include "Color.h"
-#include "Point.h"
 
 namespace jlib {
 
@@ -40,7 +39,7 @@ void FontEngine::SetFontSize(const std::string& font, int size) {
     if (err) throw std::runtime_error("Fail to set font size");
 }
 
-XPixmap FontEngine::RenderText(const std::string& text, const std::string& font) {
+Pixmap FontEngine::RenderText(const std::string& text, const std::string& font) {
     // XPixmap textImage = std::make_shared<Pixmap>()
 
 
@@ -72,15 +71,16 @@ XPixmap FontEngine::RenderText(const std::string& text, const std::string& font)
     return {};
 }
 
-XPixmap FontEngine::RenderCharacter(FT_Bitmap* bitmap) {
-    XPixmap imgChar = std::make_shared<Pixmap>(bitmap->width, bitmap->rows);
-    const auto fb = imgChar->data();
+Pixmap FontEngine::RenderCharacter(FT_Bitmap* bitmap) {
+    Pixmap imgChar(bitmap->width, bitmap->rows);
+//    XPixmap imgChar = std::make_shared<Pixmap>(bitmap->width, bitmap->rows);
+    const auto fb = imgChar.data();
     int i, j, p, q;
-    for (i = 0, p = 0; i < imgChar->width(); i++, p++) {
-        for (j = 0, q = 0; j < imgChar->height(); j++, q++) {
+    for (i = 0, p = 0; i < imgChar.width(); i++, p++) {
+        for (j = 0, q = 0; j < imgChar.height(); j++, q++) {
             auto& gray = bitmap->buffer[q * bitmap->width + p];
             gray = Color::GammaCorrect(gray, 1.8); // 2.2
-            if (gray > 0) fb[j * imgChar->width() + i] = Color::Strength(0x00FFFFFF, gray);
+            if (gray > 0) fb[j * imgChar.width() + i] = Color::Strength(0x00FFFFFF, gray);
         }
     }
     return imgChar;

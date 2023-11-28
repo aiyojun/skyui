@@ -11,10 +11,10 @@ public:
     Application(int argc, char* argv[]);
     ~Application();
 
-    int Run(Window *window);
+    int run(Window *window);
 private:
-    void Prepare();
-    void Dispose();
+    void prepare();
+    void dispose();
 };
 
 } // jlib
