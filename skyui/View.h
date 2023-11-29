@@ -27,6 +27,17 @@ public:
     size_t   fillet() const { return fillet_; }
     bool contains(const Point& pos) const;
 
+    /**
+     * @todo:
+     *   void show();
+     *   void hide();
+     *   void onResize(const WindowResizeEvent& e) override;
+     *   enum WidgetStyle { SOLID, TRANSLUCENT, ALPHA };
+     *   enum WidgetState { NORMAL, HIDDEN };
+     *   void setGeometry() {}
+     *   void setSize() {}
+     */
+
     void onMouseMove(const MouseMoveEvent& e) override;
     void onMousePress(const MousePressEvent& e) override;
     void onMouseRelease(const MouseReleaseEvent& e) override;
