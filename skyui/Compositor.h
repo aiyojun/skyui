@@ -3,23 +3,23 @@
 
 #include <map>
 #include <vector>
-#include "View.h"
+#include "Widget.h"
 #include "Pixmap.h"
 #include "Event.h"
 #include "basic_trait.h"
 
 namespace jlib {
 
-class Compositor : public EventHandle {
+class Compositor : public IEventHandle {
 public:
     explicit Compositor(const Size& sz);
     Compositor(const Compositor&) = default;
     void flush();
-    void push(const View& v) { stack_.emplace_back(v); }
+    void push(const Widget& v) { stack_.emplace_back(v); }
     Pixmap& framebuffer() { return framebuffer_; }
     void dispatch(const Event& e);
     void setDisplay(IBuffer *p) { display_ = p; }
-    View* locate(const Point& pos);
+    Widget* locate(const Point& pos);
 
     void onMouseMove(const MouseMoveEvent& e) override;
     void onMousePress(const MousePressEvent& e) override;
@@ -28,8 +28,10 @@ public:
     void onKeyPress(const KeyPressEvent& e) override;
     void onKeyRelease(const KeyReleaseEvent & e) override;
     void onClick(const MouseReleaseEvent& e) override;
+    void onResize(const jlib::WindowResizeEvent &e) override;
 
-    std::vector<View> stack_;
+private:
+    std::vector<Widget> stack_;
     Pixmap framebuffer_;
     IBuffer *display_;
 };

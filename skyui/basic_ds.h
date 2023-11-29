@@ -11,6 +11,8 @@ namespace jlib {
 
         Size(const Size &) = default;
 
+        Size(size_t w, size_t h) : width(w), height(h) {}
+
         size_t width, height;
     };
 

@@ -12,7 +12,9 @@ g++ -o build/skyuidemo \
   skyui/FontEngine.cpp \
   skyui/Pen.cpp \
   skyui/Painter.cpp \
+  skyui/Widget.cpp \
   skyui/Window.cpp \
-  skyui/View.cpp \
+  components/Button.cpp \
   -Iskyui \
+  -Icomponents \
   `pkg-config --libs --cflags Magick++ x11 cairo freetype2`

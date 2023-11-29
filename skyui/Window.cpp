@@ -50,7 +50,6 @@ void Window::run() {
     while (!XNextEvent(dsp_, &event)) {
         switch (event.type) {
             case Expose: {
-                printf("[expose]");
                 update();
                 break;
             }
@@ -154,9 +153,7 @@ void Window::dispatch(const Event &e) {
 }
 
 void Window::update() {
-    printf("[update] display : %p, window : %d, gc : %p, frame : %p, width : %d, height : %d\n", impl_->dsp_, (int) impl_->win_, impl_->gc_, impl_->frame_, (int) width_, (int) height_);
     XPutImage(impl_->dsp_, impl_->win_, impl_->gc_, impl_->frame_, 0, 0, 0, 0, width_, height_);
-//    XSync(impl_->dsp_, True);
 }
 
 } // jlib

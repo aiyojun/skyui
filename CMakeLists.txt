@@ -21,6 +21,8 @@ add_executable(skyuidemo
         skyui/Painter.cpp
         skyui/Pen.cpp
         skyui/Window.cpp
-        skyui/View.cpp
+        skyui/Widget.cpp
         skyui/Compositer.cpp
+        components/Button.cpp
+        components/Button.h
 )

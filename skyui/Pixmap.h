@@ -21,10 +21,12 @@ public:
     Size     size() const { return {width(), height()}; }
     xrgb_t   *ref() const { return ref_->data(); }
     void  fill(xrgb_t color);
+    void  fillRect(xrgb_t color, const Point& b, const Point& e);
     void  load(const std::string& filename);
     void  blur(double radius, double sigma);
     void blend(const basic_pixmap& pxm, const Point& pos);
     void cover(const basic_pixmap& pxm, const Point& pos);
+    basic_pixmap shadow(double blur = 5.0, double spread = 1.5, xrgb_t color = 0xFF000000, bool inset = false);
     basic_pixmap mask(const basic_pixmap& msk) const
     { return basic_pixmap::mask(*this, msk); }
     static basic_pixmap mask(const basic_pixmap& pxm, const basic_pixmap& msk);

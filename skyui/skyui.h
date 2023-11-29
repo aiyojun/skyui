@@ -10,7 +10,7 @@
 #include "./Painter.h"
 #include "./Pen.h"
 #include "./Pixmap.h"
-#include "./View.h"
+#include "./Widget.h"
 #include "./Window.h"
 
 #endif //SKYUI_H

@@ -16,9 +16,9 @@ public:
     ~Window();
     void run();
     void update();
-    void addEventListener(EventListener *listener)
+    void addEventListener(IEventListener *listener)
     { listeners_.emplace_back(listener); }
-    void removeEventListener(EventListener *listener)
+    void removeEventListener(IEventListener *listener)
     { listeners_.erase(std::find(listeners_.begin(), listeners_.end(), listener)); }
 private:
     class PrivateWindow;
@@ -31,7 +31,7 @@ private:
     size_t  width_, height_;
     xrgb_t *framebuffer_;
     AutoPrivateWindow impl_;
-    std::vector<EventListener*> listeners_;
+    std::vector<IEventListener*> listeners_;
 };
 
 } // jlib

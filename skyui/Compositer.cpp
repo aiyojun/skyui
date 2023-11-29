@@ -1,8 +1,10 @@
 #include "Compositor.h"
-#include <cstring>
-#include <stdexcept>
 
 namespace jlib {
+
+    Widget *rcMousePressedView = nullptr;
+
+    Widget *rcActiveView = nullptr; // press esc to cancel
 
     Compositor::Compositor(const Size &sz) : framebuffer_(sz), display_(nullptr) {
 
@@ -10,12 +12,24 @@ namespace jlib {
 
     void Compositor::flush() {
         framebuffer_.fill(0xFFFFFFFF);
-        for (auto &view: stack_) {
-            if (view.alpha()) {
-                auto pxm = view.compose();
-                framebuffer_.blend(pxm, view.position());
+        for (auto &widget: stack_) {
+            if (!widget.isVisible()) continue;
+            auto shadow = widget.shadow();
+
+            if (widget.alpha()) {
+                auto pxm = widget.compose();
+                framebuffer_.blend(pxm, widget.position());
             } else {
-                framebuffer_.cover(view.compose(), view.position());
+                framebuffer_.cover(widget.compose(), widget.position());
+            }
+
+            if (shadow) {
+                printf("[shadow] Widget : %s\n", widget.uuid().c_str());
+                auto pos = shadow->pos();
+                auto pxm = shadow->build();
+                printf("[shadow] Shadow build finished : %s\n", widget.uuid().c_str());
+//                framebuffer_.blend(shadow->build(), shadow->pos());
+                framebuffer_.blend(pxm, {pos.x, pos.y + 100});
             }
         }
         if (display_) display_->flush();
@@ -45,10 +59,10 @@ namespace jlib {
         }
     }
 
-    View *Compositor::locate(const Point &pos) {
+    Widget *Compositor::locate(const Point &pos) {
         for (int i = (int) stack_.size() - 1; i > -1; i--) {
-            auto& view = stack_[i];
-            if (view.contains(pos)) return &view;
+            auto& widget = stack_[i];
+            if (widget.contains(pos)) return &widget;
         }
         return nullptr;
     }
@@ -57,29 +71,26 @@ namespace jlib {
 
     }
 
-    View *rcMousePressedView = nullptr;
-    View *rcActiveView = nullptr; // press esc to cancel
-
     void Compositor::onMousePress(const MousePressEvent &e) {
-        auto view = locate(e->pos());
-        if (!view) return;
-        view->onMousePress(e);
-        rcMousePressedView = view;
-        rcActiveView = view;
+        auto widget = locate(e->pos());
+        if (!widget) return;
+        widget->onMousePress(e);
+        rcMousePressedView = widget;
+        rcActiveView = widget;
     }
 
     void Compositor::onMouseRelease(const MouseReleaseEvent &e) {
-        auto view = locate(e->pos());
-        if (!view) return;
-        if (rcMousePressedView == view) view->onClick(e);
-        view->onMouseRelease(e);
+        auto widget = locate(e->pos());
+        if (!widget) return;
+        if (rcMousePressedView == widget) widget->onClick(e);
+        widget->onMouseRelease(e);
         rcMousePressedView = nullptr;
     }
 
     void Compositor::onMouseWheel(const MouseWheelEvent &e) {
-        auto view = locate(e->pos());
-        if (!view) return;
-        view->onMouseWheel(e);
+        auto widget = locate(e->pos());
+        if (!widget) return;
+        widget->onMouseWheel(e);
     }
 
     void Compositor::onKeyPress(const KeyPressEvent &e) {
@@ -93,6 +104,10 @@ namespace jlib {
     }
 
     void Compositor::onClick(const MouseReleaseEvent &e) {
+
+    }
+
+    void Compositor::onResize(const WindowResizeEvent &e) {
 
     }
 

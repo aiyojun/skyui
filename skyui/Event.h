@@ -9,7 +9,8 @@ namespace jlib {
 
     enum EventType {
         MouseWheel, MouseMove, MousePress,
-        MouseRelease, KeyPress, KeyRelease
+        MouseRelease, KeyPress, KeyRelease,
+        WindowResize,
     };
 
     class basic_event {
@@ -116,6 +117,15 @@ namespace jlib {
         size_t key_;
     };
 
+    class basic_window_resize_event : public basic_event {
+    public:
+        explicit basic_window_resize_event(const Size& sz) : basic_event(WindowResize), size_(sz) {}
+        ~basic_window_resize_event() override = default;
+        const Size& size() const { return size_; }
+    private:
+        Size size_;
+    };
+
     using Event             = std::shared_ptr<basic_event>;
     using MouseEvent        = std::shared_ptr<basic_mouse_event>;
     using MouseMoveEvent    = std::shared_ptr<basic_mouse_move_event>;
@@ -124,6 +134,7 @@ namespace jlib {
     using MouseWheelEvent   = std::shared_ptr<basic_mouse_wheel_event>;
     using KeyPressEvent     = std::shared_ptr<basic_key_press_event>;
     using KeyReleaseEvent   = std::shared_ptr<basic_key_release_event>;
+    using WindowResizeEvent = std::shared_ptr<basic_window_resize_event>;
 
     class EventUtil {
     public:
@@ -139,6 +150,8 @@ namespace jlib {
         { return std::make_shared<basic_key_press_event>(key); }
         static KeyReleaseEvent buildKeyReleaseEvent(size_t key)
         { return std::make_shared<basic_key_release_event>(key); }
+        static WindowResizeEvent buildWindowResizeEvent(const Size& size)
+        { return std::make_shared<basic_window_resize_event>(size); }
         static bool isMouseEvent(const Event& e)
         { return std::dynamic_pointer_cast<basic_mouse_event>(e) != nullptr; }
         static bool isMouseMoveEvent(const Event& e)
@@ -167,22 +180,25 @@ namespace jlib {
         { return std::dynamic_pointer_cast<basic_key_press_event>(e); }
         static KeyReleaseEvent asKeyReleaseEvent(const Event& e)
         { return std::dynamic_pointer_cast<basic_key_release_event>(e); }
+        static WindowResizeEvent asWindowResizeEvent(const Event& e)
+        { return std::dynamic_pointer_cast<basic_window_resize_event>(e); }
     };
 
-    class EventListener {
+    class IEventListener {
     public:
         virtual void listen(const Event& e) = 0;
     };
 
-    class EventHandle {
+    class IEventHandle {
     public:
-        virtual void onMouseMove(const MouseMoveEvent& e) = 0;
-        virtual void onMousePress(const MousePressEvent& e) = 0;
+        virtual void onMouseMove   (const MouseMoveEvent& e)    = 0;
+        virtual void onMousePress  (const MousePressEvent& e)   = 0;
         virtual void onMouseRelease(const MouseReleaseEvent& e) = 0;
-        virtual void onClick(const MouseReleaseEvent& e) = 0;
-        virtual void onMouseWheel(const MouseWheelEvent& e) = 0;
-        virtual void onKeyPress(const KeyPressEvent& e) = 0;
-        virtual void onKeyRelease(const KeyReleaseEvent & e) = 0;
+        virtual void onMouseWheel  (const MouseWheelEvent& e)   = 0;
+        virtual void onKeyPress    (const KeyPressEvent& e)     = 0;
+        virtual void onKeyRelease  (const KeyReleaseEvent & e)  = 0;
+        virtual void onClick       (const MouseReleaseEvent& e) = 0;
+        virtual void onResize      (const WindowResizeEvent& e) = 0;
     };
 
 } // jlib

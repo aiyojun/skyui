@@ -1,11 +1,12 @@
 #include <iostream>
 #include "skyui/skyui.h"
+#include "components/Button.h"
 
 void render(jlib::Compositor& compositor);
 
 void image_proc();
 
-class GenericEventListener : public jlib::EventListener {
+class GenericEventListener : public jlib::IEventListener {
 public:
     void listen(const jlib::Event& e) override;
 };
@@ -25,7 +26,8 @@ int main(int argc, char* argv[]) {
         const auto fontEngine = jlib::FontEngine::GetInstance();
         fontEngine->LoadTTF("/root/Downloads/JetBrainsMono-1.0.3/ttf/JetBrainsMono-Regular.ttf", fontFamily);
     }
-    jlib::Compositor compositor({1280, 960});
+    printf("[Font] %s\n", fontFamily.c_str());
+    jlib::Compositor compositor({600, 400});
     gCompositor = &compositor;
     compositor.framebuffer().fill(0xFFFFAAFF);
     render(compositor);
@@ -40,14 +42,17 @@ int main(int argc, char* argv[]) {
 }
 
 void render(jlib::Compositor& compositor) {
-    jlib::View v0({200, 100}), v1({200, 100});
-    v0.setFillet(10);
-    v0.content().fill(0x88AAFFFF);
-    v1.content().fill(0xFFFFAAFF);
-    v1.move({50, 50});
-    v0.move({100, 100});
-    compositor.push(v1);
-    compositor.push(v0);
+    jlib::Button btn0("ok");
+    btn0.move(100, 50);
+    compositor.push(btn0);
+//    jlib::Widget v0({200, 100}), v1({200, 100});
+//    v0.setFillet(10);
+//    v0.content().fill(0x88AAFFFF);
+//    v1.content().fill(0xFFFFAAFF);
+//    v1.move({50, 50});
+//    v0.move({100, 100});
+//    compositor.push(v1);
+//    compositor.push(v0);
     compositor.flush();
 }
 
@@ -60,16 +65,16 @@ void WindowDisplayBuffer::flush() {
 }
 
 void image_proc() {
-    jlib::View img({100, 100});
-    img.content().fill(0x88FFAAAA);
-    img.setFillet(10);
-    jlib::Painter painter(img.content());
-    jlib::Pen pen;
-    pen.setColor(0xff333333);
-    painter.setPen(&pen);
-    painter.drawRect({20, 20}, 20, 20, 0);
-    img.content().blur(50, 10);
-    img.move({200, 200});
-    gCompositor->push(img);
-    gCompositor->flush();
+//    jlib::Widget img({100, 100});
+//    img.content().fill(0x88FFAAAA);
+//    img.setFillet(10);
+//    jlib::Painter painter(img.content());
+//    jlib::Pen pen;
+//    pen.setColor(0xff333333);
+//    painter.setPen(&pen);
+//    painter.drawRect({20, 20}, 20, 20, 0);
+//    img.content().blur(50, 10);
+//    img.move({200, 200});
+//    gCompositor->push(img);
+//    gCompositor->flush();
 }

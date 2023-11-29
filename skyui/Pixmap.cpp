@@ -7,6 +7,10 @@
 namespace jlib {
 
 
+    void blur(Pixmap pxm, int kernel, double sigma) {
+
+    }
+
 //class Pixmap;
 //
 //using XPixmap = std::shared_ptr<Pixmap>;
@@ -237,9 +241,55 @@ namespace jlib {
         Magick::Image img;
         img.backgroundColor(Magick::Color(255, 255, 255, 0));
         img.read(w, h, "BGRA", Magick::CharPixel, (void *) data());
-        img.gaussianBlur(radius, sigma);
-        Pixmap out(img.size().width(), img.size().height());
+        img.blur(radius, sigma);
         img.write(0, 0, w, h, "BGRA", Magick::CharPixel, (void *) data());
+    }
+
+    basic_pixmap basic_pixmap::shadow(double blur, double spread, xrgb_t color, bool inset) {
+//        spread = 1.5;
+        if (spread < 1.0) throw std::runtime_error("error parameter spread : " + std::to_string(spread));
+        printf("shadow parameters => blur : %f, spread : %f\n", blur, spread);
+        size_t inbox_width   =  width() * 0.5,
+               inbox_height  = height() * 0.5,
+               outbox_width  = (size_t) (spread * (double) width()),
+               outbox_height = (size_t) (spread * (double) height());
+//        basic_pixmap inbox ( inbox_width,  inbox_height);
+        basic_pixmap outbox(outbox_width, outbox_height);
+        outbox.fill(0x00FFFFFF);
+        Point p0{(int) ((spread - 1) * 0.5 * (double) width()), (int) ((spread - 1) * 0.5 * (double) height())};
+        outbox.fillRect(0xFF000000, p0, {(int) (p0.x + width()), (int) (p0.y + height())});
+//        outbox.fillRect(0xFF000000, {10, 10}, {(int) (outbox_width - 10), (int) (outbox_height - 10)});
+//        int inbox_x = (int) (0.5 * (double) (outbox_width  - inbox_width)),
+//            inbox_y = (int) (0.5 * (double) (outbox_height - inbox_height));
+//        inbox.fill(color);
+//        inbox.fill(0xFF000000);
+//        outbox.cover(inbox, {inbox_x, inbox_y});
+//        outbox.blur((double) outbox_width, blur);
+//        outbox.blur((double) outbox_width * 2, 10);
+//        outbox.cover(*this, {inbox_x, inbox_y});
+
+        Magick::Image img;
+        img.backgroundColor(Magick::Color(255, 255, 255, 0));
+        img.read(outbox_width, outbox_height, "BGRA", Magick::CharPixel, (void *) outbox.data());
+        img.blur(5, 10);
+        img.write(0, 0, outbox_width, outbox_height, "BGRA", Magick::CharPixel, (void *) outbox.data());
+        return outbox;
+    }
+
+    void basic_pixmap::fillRect(xrgb_t color, const Point &b, const Point &e) {
+        const auto raw_width = width(), raw_height = height();
+        if (b.x < 0 || b.y < 0 || e.x < 0 || e.y < 0
+            || b.x >= raw_width || b.y >= raw_height || e.x >= raw_width || e.y >= raw_height
+            || b.x > e.x || b.y > e.y)
+            throw std::runtime_error("rectangle arguments error");
+        const auto delta_width = e.x - b.x, delta_height = e.y - b.y;
+        xrgb_t* ptr = data();
+        for (int i = 0; i < delta_width; i++)
+            ptr[b.y * raw_width + b.x + i] = color;
+        auto unit = sizeof(xrgb_t);
+        for (int i = 1; i < delta_height; i++) {
+            ::memcpy(ptr + raw_width * (b.y + i) + b.x, ptr + raw_width * b.y + b.x, unit * delta_width);
+        }
     }
 
 } // jlib
