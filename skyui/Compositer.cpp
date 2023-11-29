@@ -4,7 +4,7 @@
 
 namespace jlib {
 
-    Compositor::Compositor(const Size &sz) : framebuffer_(sz) {
+    Compositor::Compositor(const Size &sz) : framebuffer_(sz), display_(nullptr) {
 
     }
 
@@ -15,48 +15,85 @@ namespace jlib {
                 auto pxm = view.compose();
                 framebuffer_.blend(pxm, view.position());
             } else {
-                framebuffer_.overlay(view.compose(), view.position());
+                framebuffer_.cover(view.compose(), view.position());
             }
         }
+        if (display_) display_->flush();
     }
 
     void Compositor::dispatch(const Event &e) {
-        if (EventUtil::isMouseMoveEvent(e)) {
-            auto ep = std::dynamic_pointer_cast<basic_mouse_move_event>(e);
-//            printf("[MouseMove] (%d, %d)\n", ep->x(), ep->y());
-            return;
-        }
-
-        if (EventUtil::isMouseWheelEvent(e)) {
-            auto ep = std::dynamic_pointer_cast<basic_mouse_wheel_event>(e);
-            printf("[MouseWheel] (%d, %d, %d)\n", ep->x(), ep->y(), ep->delta());
-            return;
-        }
-
-        if (EventUtil::isMousePressEvent(e)) {
-            auto ep = std::dynamic_pointer_cast<basic_mouse_press_event>(e);
-            printf("[MousePress] (%d, %d, %d)\n", ep->x(), ep->y(), ep->button());
-            return;
-        }
-
-        if (EventUtil::isMouseReleaseEvent(e)) {
-            auto ep = std::dynamic_pointer_cast<basic_mouse_release_event>(e);
-            printf("[MouseRelease] (%d, %d, %d)\n", ep->x(), ep->y(), ep->button());
-            return;
-        }
-
-        if (EventUtil::isKeyPressEvent(e)) {
-            auto ep = std::dynamic_pointer_cast<basic_key_press_event>(e);
-            printf("[KeyPress] key : %u\n", ep->key());
-            return;
-        }
-
-        if (EventUtil::isKeyReleaseEvent(e)) {
-            auto ep = std::dynamic_pointer_cast<basic_key_release_event>(e);
-            printf("[KeyRelease] key : %u\n", ep->key());
-            return;
+        switch (e->type()) {
+            case EventType::MouseMove:
+                onMouseMove(EventUtil::asMouseMoveEvent(e));
+                break;
+            case EventType::MousePress:
+                onMousePress(EventUtil::asMousePressEvent(e));
+                break;
+            case EventType::MouseRelease:
+                onMouseRelease(EventUtil::asMouseReleaseEvent(e));
+                break;
+            case EventType::MouseWheel:
+                onMouseWheel(EventUtil::asMouseWheelEvent(e));
+                break;
+            case EventType::KeyPress:
+                onKeyPress(EventUtil::asKeyPressEvent(e));
+                break;
+            case EventType::KeyRelease:
+                onKeyRelease(EventUtil::asKeyReleaseEvent(e));
+                break;
+            default:;
         }
     }
 
+    View *Compositor::locate(const Point &pos) {
+        for (int i = (int) stack_.size() - 1; i > -1; i--) {
+            auto& view = stack_[i];
+            if (view.contains(pos)) return &view;
+        }
+        return nullptr;
+    }
+
+    void Compositor::onMouseMove(const MouseMoveEvent &e) {
+
+    }
+
+    View *rcMousePressedView = nullptr;
+    View *rcActiveView = nullptr; // press esc to cancel
+
+    void Compositor::onMousePress(const MousePressEvent &e) {
+        auto view = locate(e->pos());
+        if (!view) return;
+        view->onMousePress(e);
+        rcMousePressedView = view;
+        rcActiveView = view;
+    }
+
+    void Compositor::onMouseRelease(const MouseReleaseEvent &e) {
+        auto view = locate(e->pos());
+        if (!view) return;
+        if (rcMousePressedView == view) view->onClick(e);
+        view->onMouseRelease(e);
+        rcMousePressedView = nullptr;
+    }
+
+    void Compositor::onMouseWheel(const MouseWheelEvent &e) {
+        auto view = locate(e->pos());
+        if (!view) return;
+        view->onMouseWheel(e);
+    }
+
+    void Compositor::onKeyPress(const KeyPressEvent &e) {
+        if (!rcActiveView) return;
+        rcActiveView->onKeyPress(e);
+    }
+
+    void Compositor::onKeyRelease(const KeyReleaseEvent &e) {
+        if (!rcActiveView) return;
+        rcActiveView->onKeyRelease(e);
+    }
+
+    void Compositor::onClick(const MouseReleaseEvent &e) {
+
+    }
 
 }

@@ -45,15 +45,22 @@ void Window::run() {
     auto &win_ = impl_->win_;
     auto &gc_ = impl_->gc_;
     auto &frame_ = impl_->frame_;
+    auto &info_ = impl_->info_;
     XEvent event;
     while (!XNextEvent(dsp_, &event)) {
         switch (event.type) {
             case Expose: {
+                printf("[expose]");
                 update();
                 break;
             }
             case MotionNotify: {
+//                printf("- move frame %p\n", framebuffer_);
                 dispatch(EventUtil::buildMouseMoveEvent(event.xmotion.x, event.xmotion.y));
+//                frame_ = XCreateImage(dsp_, info_.visual, info_.depth,
+//                                      ZPixmap, 0, reinterpret_cast<char *>(framebuffer_), width_, height_, 8, width_ * 4);
+//                XPutImage(impl_->dsp_, impl_->win_, impl_->gc_, impl_->frame_, 0, 0, 0, 0, width_, height_);
+//                update();
                 break;
             }
             case KeyPress: {
@@ -121,6 +128,7 @@ void Window::create() {
     if (!gc_) throw std::runtime_error("error: fail to create gc.");
     frame_ = XCreateImage(dsp_, info_.visual, info_.depth,
                           ZPixmap, 0, reinterpret_cast<char *>(framebuffer_), width_, height_, 8, width_ * 4);
+//    printf("- create frame %p\n", framebuffer_);
     XSizeHints hints;
     hints.x = x_;
     hints.y = y_;
@@ -146,7 +154,9 @@ void Window::dispatch(const Event &e) {
 }
 
 void Window::update() {
+    printf("[update] display : %p, window : %d, gc : %p, frame : %p, width : %d, height : %d\n", impl_->dsp_, (int) impl_->win_, impl_->gc_, impl_->frame_, (int) width_, (int) height_);
     XPutImage(impl_->dsp_, impl_->win_, impl_->gc_, impl_->frame_, 0, 0, 0, 0, width_, height_);
+//    XSync(impl_->dsp_, True);
 }
 
 } // jlib

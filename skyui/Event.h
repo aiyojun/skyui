@@ -7,13 +7,15 @@
 
 namespace jlib {
 
+    enum EventType {
+        MouseWheel, MouseMove, MousePress,
+        MouseRelease, KeyPress, KeyRelease
+    };
+
     class basic_event {
     public:
-        enum EventType {
-            MouseWheel, MouseMove, MousePress,
-            MouseRelease, KeyPress, KeyRelease
-        };
         virtual ~basic_event() = default;
+        EventType type() const { return type_; }
     protected:
         explicit basic_event(EventType t) : type_(t) {}
     private:
@@ -26,9 +28,14 @@ namespace jlib {
     public:
         static const Mouse& getInstance();
         Mouse(const Mouse&) = delete;
+        void press  (MouseButton button) { buttons_.insert(button); }
+        void release(MouseButton button) { buttons_.erase(button); }
+        bool pressed(MouseButton button) const
+        { return buttons_.find(button) != buttons_.end(); }
     private:
         Mouse() = default;
         static Mouse *instance_;
+        std::set<MouseButton> buttons_;
     };
 
     class Keyboard {
@@ -53,6 +60,7 @@ namespace jlib {
         ~basic_mouse_event() override = default;
         int x() const { return x_; }
         int y() const { return y_; }
+        Point pos() const { return {x_, y_}; }
     private:
         int x_, y_;
     };
@@ -145,11 +153,36 @@ namespace jlib {
         { return std::dynamic_pointer_cast<basic_key_press_event>(e) != nullptr; }
         static bool isKeyReleaseEvent(const Event& e)
         { return std::dynamic_pointer_cast<basic_key_release_event>(e) != nullptr; }
+        static MouseEvent asMouseEvent(const Event& e)
+        { return std::dynamic_pointer_cast<basic_mouse_event>(e); }
+        static MouseMoveEvent asMouseMoveEvent(const Event& e)
+        { return std::dynamic_pointer_cast<basic_mouse_move_event>(e); }
+        static MousePressEvent asMousePressEvent(const Event& e)
+        { return std::dynamic_pointer_cast<basic_mouse_press_event>(e); }
+        static MouseReleaseEvent asMouseReleaseEvent(const Event& e)
+        { return std::dynamic_pointer_cast<basic_mouse_release_event>(e); }
+        static MouseWheelEvent asMouseWheelEvent(const Event& e)
+        { return std::dynamic_pointer_cast<basic_mouse_wheel_event>(e); }
+        static KeyPressEvent asKeyPressEvent(const Event& e)
+        { return std::dynamic_pointer_cast<basic_key_press_event>(e); }
+        static KeyReleaseEvent asKeyReleaseEvent(const Event& e)
+        { return std::dynamic_pointer_cast<basic_key_release_event>(e); }
     };
 
     class EventListener {
     public:
         virtual void listen(const Event& e) = 0;
+    };
+
+    class EventHandle {
+    public:
+        virtual void onMouseMove(const MouseMoveEvent& e) = 0;
+        virtual void onMousePress(const MousePressEvent& e) = 0;
+        virtual void onMouseRelease(const MouseReleaseEvent& e) = 0;
+        virtual void onClick(const MouseReleaseEvent& e) = 0;
+        virtual void onMouseWheel(const MouseWheelEvent& e) = 0;
+        virtual void onKeyPress(const KeyPressEvent& e) = 0;
+        virtual void onKeyRelease(const KeyReleaseEvent & e) = 0;
     };
 
 } // jlib

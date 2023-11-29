@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <stdexcept>
+#include <Magick++/Image.h>
 
 namespace jlib {
 
@@ -166,7 +167,7 @@ namespace jlib {
         return *this;
     }
 
-    void basic_pixmap::overlay(const basic_pixmap &pxm, const Point &pos) {
+    void basic_pixmap::cover(const basic_pixmap &pxm, const Point &pos) {
         xrgb_t *srcImg = data(), *dstImg = pxm.data();
         size_t srcWidth = width();
         size_t w = pxm.width();
@@ -185,7 +186,7 @@ namespace jlib {
                 if (p.x + i >= 0 && p.y + j >= 0 && p.x + i < srcWidth && p.y + j < height()) {
                     auto& bc = srcImg[srcWidth * (p.y + j) + p.x + i];
                     auto& fc = dstImg[pxm.width() * j + i];
-                    bc = Color::Blend(bc, fc);
+                    bc = ColorUtil::blend(bc, fc); // Color::Blend(bc, fc);
                 }
             }
         }
@@ -204,7 +205,7 @@ namespace jlib {
                 if (xc == 0) {
                     ptr[index] = 0x00FFFFFF & raw[index];
                 }else {
-                    ptr[index] = Color::Transparent(raw[index], (float) xc / 255);
+                    ptr[index] = ColorUtil::alpha(raw[index], (float) xc / 255); // Color::Transparent(raw[index], (float) xc / 255);
                 }
             }
         }
@@ -220,6 +221,25 @@ namespace jlib {
         for (int i = 1; i < pxm_height; i++) {
             ::memcpy(ptr + pxm_width * i, ptr, unit * pxm_width);
         }
+    }
+
+    void basic_pixmap::load(const std::string &filename) {
+        Magick::Image img;
+        img.backgroundColor(Magick::Color(255, 255, 255, 0));
+        img.read(filename);
+        size_t w = img.size().width(), h = img.size().height();
+        *this = Pixmap(w, h);
+        img.write(0, 0, w, h, "BGRA", Magick::CharPixel, (void *) data());
+    }
+
+    void basic_pixmap::blur(double radius, double sigma) {
+        size_t w = width(), h = height();
+        Magick::Image img;
+        img.backgroundColor(Magick::Color(255, 255, 255, 0));
+        img.read(w, h, "BGRA", Magick::CharPixel, (void *) data());
+        img.gaussianBlur(radius, sigma);
+        Pixmap out(img.size().width(), img.size().height());
+        img.write(0, 0, w, h, "BGRA", Magick::CharPixel, (void *) data());
     }
 
 } // jlib

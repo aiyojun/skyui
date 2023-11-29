@@ -8,23 +8,21 @@ namespace jlib {
 
 class Pen {
 public:
-    Pen() : font_family_(""), color_(0x00FFFFFF), font_size_(14), line_width_(1) {}
-    Pen(const Pen& pen) : font_family_(pen.font_family_), color_(pen.color_), font_size_(pen.font_size_), line_width_(pen.line_width_) {}
-    void set_font_family(const std::string& font_family) { font_family_ = font_family; }
-    const std::string& font_family() { return font_family_; }
-    void set_color(xrgb_t color) { color_ = color; }
-    xrgb_t color() const { return color_; }
-    void set_font_size(int size) { font_size_ = size; }
-    int font_size() const { return font_size_; }
-    void set_line_width(double width) { line_width_ = width; }
-    double line_width() const { return line_width_; }
-    void UseDark();
-    void UseLight();
+    Pen() : color_(0xFFFFFFFF), lineWidth_(1), fontSize_(14), fontFamily_() {}
+    Pen(const Pen& pen) = default;
+    void setColor     (xrgb_t color) { color_ = color; }
+    void setLineWidth (double width) { lineWidth_ = width; }
+    void setFontSize  (int size) { fontSize_ = size; }
+    void setFontFamily(const std::string& font_family) { fontFamily_ = font_family; }
+    xrgb_t     color() const { return color_; }
+    double lineWidth() const { return lineWidth_; }
+    int     fontSize() const { return fontSize_; }
+    const std::string& fontFamily() const { return fontFamily_; }
 private:
     xrgb_t color_;
-    int font_size_;
-    std::string font_family_;
-    double line_width_;
+    double lineWidth_;
+    int fontSize_;
+    std::string fontFamily_;
 };
 
 } // jlib

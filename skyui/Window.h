@@ -6,6 +6,7 @@
 #include "Pixmap.h"
 #include "Event.h"
 #include "Compositor.h"
+#include "basic_trait.h"
 
 namespace jlib {
 

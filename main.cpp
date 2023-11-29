@@ -3,11 +3,20 @@
 
 void render(jlib::Compositor& compositor);
 
+void image_proc();
+
 class GenericEventListener : public jlib::EventListener {
-    virtual void listen(const jlib::Event& e);
+public:
+    void listen(const jlib::Event& e) override;
+};
+
+class WindowDisplayBuffer : public jlib::IBuffer {
+public:
+    void flush() override;
 };
 
 jlib::Compositor* gCompositor;
+jlib::Window* gw;
 
 int main(int argc, char* argv[]) {
     jlib::Application app(argc, argv);
@@ -21,8 +30,12 @@ int main(int argc, char* argv[]) {
     compositor.framebuffer().fill(0xFFFFAAFF);
     render(compositor);
     jlib::Window window(compositor.framebuffer(), 1000, 1000, "Pretty GUI");
+    WindowDisplayBuffer wdb;
+    compositor.setDisplay(&wdb);
+    gw = &window;
     GenericEventListener listener;
     window.addEventListener(&listener);
+    image_proc();
     return app.run(&window);
 }
 
@@ -40,4 +53,23 @@ void render(jlib::Compositor& compositor) {
 
 void GenericEventListener::listen(const jlib::Event &e) {
     gCompositor->dispatch(e);
+}
+
+void WindowDisplayBuffer::flush() {
+    gw->update();
+}
+
+void image_proc() {
+    jlib::View img({100, 100});
+    img.content().fill(0x88FFAAAA);
+    img.setFillet(10);
+    jlib::Painter painter(img.content());
+    jlib::Pen pen;
+    pen.setColor(0xff333333);
+    painter.setPen(&pen);
+    painter.drawRect({20, 20}, 20, 20, 0);
+    img.content().blur(50, 10);
+    img.move({200, 200});
+    gCompositor->push(img);
+    gCompositor->flush();
 }

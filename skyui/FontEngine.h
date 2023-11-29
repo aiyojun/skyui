@@ -15,7 +15,7 @@ class FontEngine {
 public:
     static FontEngine *GetInstance();
     ~FontEngine();
-    void LoadTTF(const char *filename, std::string& fontname);
+    void LoadTTF(const char *filename, std::string& fontFamily);
     void SetFontSize(const std::string& font, int size);
     Pixmap RenderText(const std::string& text, const std::string& font);
     void RenderText(Pixmap& canvas, const std::string& text, Point p, xrgb_t color, const std::string& font, bool dark=true);

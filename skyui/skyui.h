@@ -7,7 +7,6 @@
 #include "./Compositor.h"
 #include "./Event.h"
 #include "./FontEngine.h"
-#include "./ImageEngine.h"
 #include "./Painter.h"
 #include "./Pen.h"
 #include "./Pixmap.h"

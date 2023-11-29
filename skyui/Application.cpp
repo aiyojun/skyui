@@ -1,3 +1,4 @@
+#include <Magick++/Functions.h>
 #include "Application.h"
 #include "Window.h"
 
@@ -12,7 +13,7 @@ Application::~Application() {
 }
 
 void Application::prepare() {
-
+    Magick::InitializeMagick(nullptr);
 }
 
 void Application::dispose() {

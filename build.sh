@@ -10,7 +10,6 @@ g++ -o build/skyuidemo \
   skyui/Compositer.cpp \
   skyui/Event.cpp \
   skyui/FontEngine.cpp \
-  skyui/ImageEngine.cpp \
   skyui/Pen.cpp \
   skyui/Painter.cpp \
   skyui/Window.cpp \

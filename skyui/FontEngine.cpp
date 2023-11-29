@@ -79,8 +79,8 @@ Pixmap FontEngine::RenderCharacter(FT_Bitmap* bitmap) {
     for (i = 0, p = 0; i < imgChar.width(); i++, p++) {
         for (j = 0, q = 0; j < imgChar.height(); j++, q++) {
             auto& gray = bitmap->buffer[q * bitmap->width + p];
-            gray = Color::GammaCorrect(gray, 1.8); // 2.2
-            if (gray > 0) fb[j * imgChar.width() + i] = Color::Strength(0x00FFFFFF, gray);
+            gray = ColorUtil::gamma(gray, 1.8); // Color::GammaCorrect(gray, 1.8); // 2.2
+            if (gray > 0) fb[j * imgChar.width() + i] = ColorUtil::fade(0x00FFFFFF, (float) gray / 255);//Color::Strength(0x00FFFFFF, gray);
         }
     }
     return imgChar;
@@ -110,9 +110,12 @@ void FontEngine::RenderCharacter(Pixmap& canvas, FT_Bitmap* bitmap, int x, int y
         for (j = y, q = 0; j < y_max; j++, q++) {
             if (i < 0 || j < 0 || i >= w || j >= h) continue;
             auto& gray = bitmap->buffer[q * bitmap->width + p];
-            gray = Color::GammaCorrect(gray, 1.8); // 2.2
+            gray = ColorUtil::gamma(gray, 1.8); // Color::GammaCorrect(gray, 1.8); // 2.2
             if (gray > 0) {
-                fb[j * w + i] = dark ? Color::Strength(xrgb, gray) : Color::Invert(Color::Strength(Color::Invert(xrgb), gray));
+//                fb[j * w + i] = dark ? Color::Strength(xrgb, gray) : Color::Invert(Color::Strength(Color::Invert(xrgb), gray));
+                fb[j * w + i] = dark
+                        ? ColorUtil::fade(xrgb, (float) gray / 255)
+                        : ColorUtil::invert(ColorUtil::fade(ColorUtil::invert(xrgb), (float) gray / 255));
             }
         }
     }

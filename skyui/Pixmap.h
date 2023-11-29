@@ -19,9 +19,12 @@ public:
     size_t height() const { return empty() ? 0 : ref_->height(); }
     xrgb_t  *data() const { return ref_->data(); }
     Size     size() const { return {width(), height()}; }
-    void    fill(xrgb_t color);
-    void overlay(const basic_pixmap& pxm, const Point& pos);
-    void   blend(const basic_pixmap& pxm, const Point& pos);
+    xrgb_t   *ref() const { return ref_->data(); }
+    void  fill(xrgb_t color);
+    void  load(const std::string& filename);
+    void  blur(double radius, double sigma);
+    void blend(const basic_pixmap& pxm, const Point& pos);
+    void cover(const basic_pixmap& pxm, const Point& pos);
     basic_pixmap mask(const basic_pixmap& msk) const
     { return basic_pixmap::mask(*this, msk); }
     static basic_pixmap mask(const basic_pixmap& pxm, const basic_pixmap& msk);
