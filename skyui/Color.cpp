@@ -34,7 +34,7 @@ namespace jlib {
         r = static_cast<unsigned int>(f * r) & 0xff;
         g = static_cast<unsigned int>(f * g) & 0xff;
         b = static_cast<unsigned int>(f * b) & 0xff;
-        return (x << 24) |  (r << 16) | (g << 8) | b;
+        return (x << 24) | (r << 16) | (g << 8) | b;
     }
 
     xrgb_t ColorUtil::alpha(xrgb_t x, float alpha) {

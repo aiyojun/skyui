@@ -9,8 +9,7 @@ g++ -o build/skyuidemo \
   skyui/Color.cpp \
   skyui/Compositer.cpp \
   skyui/Event.cpp \
-  skyui/FontEngine.cpp \
-  skyui/Pen.cpp \
+  skyui/Font.cpp \
   skyui/Painter.cpp \
   skyui/Widget.cpp \
   skyui/Window.cpp \

@@ -26,7 +26,8 @@ public:
     void  blur(double radius, double sigma);
     void blend(const basic_pixmap& pxm, const Point& pos);
     void cover(const basic_pixmap& pxm, const Point& pos);
-    basic_pixmap shadow(double blur = 5.0, double spread = 1.5, xrgb_t color = 0xFF000000, bool inset = false);
+    basic_pixmap copy() const;
+//    basic_pixmap shadow(double blur = 5.0, double spread = 1.5, xrgb_t color = 0xFF000000, bool inset = false);
     basic_pixmap mask(const basic_pixmap& msk) const
     { return basic_pixmap::mask(*this, msk); }
     static basic_pixmap mask(const basic_pixmap& pxm, const basic_pixmap& msk);

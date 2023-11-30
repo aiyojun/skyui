@@ -9,7 +9,6 @@ include_directories(
         /usr/include/librsvg-2.0
         /usr/include/ImageMagick-7
         skyui
-        uidecl
 )
 
 add_executable(skyuidemo
@@ -17,12 +16,12 @@ add_executable(skyuidemo
         skyui/Application.cpp
         skyui/Pixmap.cpp
         skyui/Color.cpp
-        skyui/FontEngine.cpp
+        skyui/Font.cpp
         skyui/Painter.cpp
-        skyui/Pen.cpp
         skyui/Window.cpp
         skyui/Widget.cpp
         skyui/Compositer.cpp
+        skyui/Shadow.cpp
         components/Button.cpp
         components/Button.h
 )

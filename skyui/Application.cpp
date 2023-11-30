@@ -20,14 +20,9 @@ void Application::dispose() {
 
 }
 
-
 int Application::run(Window *window) {
     window->run();
     return 0;
 }
-
-
-
-
 
 } // jlib

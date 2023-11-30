@@ -15,21 +15,13 @@ namespace jlib {
         for (auto &widget: stack_) {
             if (!widget.isVisible()) continue;
             auto shadow = widget.shadow();
-
+            auto pos = shadow->pos();
+            printf("[Shadow] shadow (%d, %d)\n", pos.x, pos.y);
+            framebuffer_.blend(shadow->shadow(), pos);
             if (widget.alpha()) {
-                auto pxm = widget.compose();
-                framebuffer_.blend(pxm, widget.position());
+                framebuffer_.blend(widget.compose(), widget.position());
             } else {
                 framebuffer_.cover(widget.compose(), widget.position());
-            }
-
-            if (shadow) {
-                printf("[shadow] Widget : %s\n", widget.uuid().c_str());
-                auto pos = shadow->pos();
-                auto pxm = shadow->build();
-                printf("[shadow] Shadow build finished : %s\n", widget.uuid().c_str());
-//                framebuffer_.blend(shadow->build(), shadow->pos());
-                framebuffer_.blend(pxm, {pos.x, pos.y + 100});
             }
         }
         if (display_) display_->flush();
@@ -68,7 +60,8 @@ namespace jlib {
     }
 
     void Compositor::onMouseMove(const MouseMoveEvent &e) {
-
+//        stack_[0].move(e->x(), e->y());
+//        flush();
     }
 
     void Compositor::onMousePress(const MousePressEvent &e) {

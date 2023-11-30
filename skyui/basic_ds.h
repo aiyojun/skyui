@@ -13,6 +13,8 @@ namespace jlib {
 
         Size(size_t w, size_t h) : width(w), height(h) {}
 
+        Size& operator=(const Size&) = default;
+
         size_t width, height;
     };
 
@@ -21,6 +23,8 @@ namespace jlib {
         Point() = default;
 
         Point(const Point &) = default;
+
+        Point& operator=(const Point&) = default;
 
         int x, y;
     };

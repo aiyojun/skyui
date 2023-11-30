@@ -117,5 +117,17 @@ void Painter::drawRect(Point b, size_t w, size_t h, size_t r) {
     cairo_fill(storage_.cr);
 }
 
+    void Painter::drawText(Point b, const std::string &text, const Font &font) {
+        cairo_set_source_rgba(storage_.cr,
+                              (float) (DIM_R(pen_->color())) / 255,
+                              (float) (DIM_G(pen_->color())) / 255,
+                              (float) (DIM_B(pen_->color())) / 255,
+                              (float) (DIM_X(pen_->color())) / 255);
+        cairo_select_font_face(storage_.cr, font.fontFamily().c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+        cairo_set_font_size(storage_.cr, (double) font.fontSize());
+        cairo_move_to(storage_.cr, b.x, b.y);
+        cairo_show_text(storage_.cr, text.c_str());
+    }
+
 
 }

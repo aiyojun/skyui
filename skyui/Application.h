@@ -1,10 +1,10 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
+
 namespace jlib {
 
-class FontEngine;
-
 class Window;
+class FontEngine;
 
 class Application {
 public:

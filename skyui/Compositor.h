@@ -20,7 +20,7 @@ public:
     void dispatch(const Event& e);
     void setDisplay(IBuffer *p) { display_ = p; }
     Widget* locate(const Point& pos);
-
+    // events agent
     void onMouseMove(const MouseMoveEvent& e) override;
     void onMousePress(const MousePressEvent& e) override;
     void onMouseRelease(const MouseReleaseEvent& e) override;

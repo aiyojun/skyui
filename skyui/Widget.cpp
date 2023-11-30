@@ -1,7 +1,8 @@
 #include <random>
-#include "Widget.h"
+#include <stdexcept>
+#include <Magick++/Image.h>
 #include "Painter.h"
-#include "basic_ds.h"
+#include "Widget.h"
 
 namespace {
 
@@ -29,29 +30,111 @@ namespace {
         return uuid;
     }
 
+    jlib::Pixmap generateShadow(jlib::Widget& widget, double spread, double blur, jlib::xrgb_t color) {
+        printf("shadow parameters => blur : %f, spread : %f\n", blur, spread);
+        size_t width, height, outbox_width, outbox_height;
+        width = widget.width(); height = widget.height();
+        jlib::Pixmap pxm = widget.mask();
+        if (pxm.empty()) {
+            printf("shadow use content, not mask\n");
+            pxm = widget.content();
+        } else {
+            printf("shadow use mask\n");
+        }
+        outbox_width = (size_t) ((double) width + spread * 2);
+        outbox_height = (size_t) ((double) height + spread * 2);
+        jlib::Pixmap outbox(outbox_width, outbox_height);
+        outbox.fill(0x00FFFFFF);
+//        Point p0{(int) spread, (int) spread};
+//        outbox.fillRect(color, p0, {(int) (p0.x + width()), (int) (p0.y + height())});
+        jlib::xrgb_t *ptr_d = outbox.data(), *ptr_s = pxm.data();
+        for (int j = 0; j < height; j++) {
+            for (int i = 0; i < width; i++) {
+                unsigned int x = (ptr_s[width * j + i] & 0xFF000000) >> 24;
+                ptr_d[(int) ((double) outbox_width * (spread + j) + spread + i)]
+                        = jlib::ColorUtil::alpha(color, (float) x / 255);
+            }
+        }
+        Magick::Image img;
+        img.backgroundColor(Magick::Color(255, 255, 255, 0));
+        img.read(outbox_width, outbox_height, "BGRA", Magick::CharPixel, (void *) outbox.data());
+        img.blur(spread, blur);
+        img.write(0, 0, outbox_width, outbox_height, "BGRA", Magick::CharPixel, (void *) outbox.data());
+        return outbox;
+    }
+
 }
 
 namespace jlib {
 
-    Widget::Widget(const Size& sz)
-    : uuid_(generate_uuid()), content_(sz),
-      position_(), z_(0), fillet_(0),
-      state_(NORMAL), style_(SOLID) {
+    class Widget::PrivateWidget {
+    public:
+        PrivateWidget(const Size& sz, size_t radius);
+        int         x_, y_, z_;
+        Pixmap      content_, mask_;
+        size_t      fillet_;
+        std::string uuid_;
+        WidgetState state_;
+        WidgetStyle style_;
+        Shadow      shadow_;
+    };
+
+    Widget::PrivateWidget::PrivateWidget(const Size& sz, size_t radius)
+    : x_(0), y_(0), z_(0), content_(Pixmap(sz)),
+      mask_(radius != 0 ? buildFilletMask(sz, radius) : Pixmap()),
+      fillet_(radius), uuid_(generate_uuid()), state_(NORMAL),
+      style_(radius != 0 ? TRANSLUCENT : SOLID), shadow_(nullptr) {
 
     }
+
+    Widget::Widget(const Size &sz, size_t radius)
+            : prv_(std::make_shared<PrivateWidget>(sz, radius)) {}
+
+    const std::string &Widget::uuid() const { return prv_->uuid_; }
+
+    void Widget::move(int x, int y) {
+        prv_->x_ = x;
+        prv_->y_ = y;
+    }
+
+    void Widget::move(const Point &pos) {
+        prv_->x_ = pos.x;
+        prv_->y_ = pos.y;
+    }
+
+    int Widget::x() const { return prv_->x_; }
+
+    int Widget::y() const { return prv_->y_; }
+
+    int Widget::z() const { return prv_->z_; }
+
+    size_t Widget::width() const { return prv_->content_.width(); }
+
+    size_t Widget::height() const { return prv_->content_.height(); }
+
+    Pixmap &Widget::content() { return prv_->content_; }
+
+    const Pixmap &Widget::mask() const { return prv_->mask_; }
+
+    const Shadow &Widget::shadow() const { return prv_->shadow_; }
+
+    Point Widget::position() const { return {prv_->x_, prv_->y_}; }
+
+    size_t Widget::fillet() const { return prv_->fillet_; }
+
+    bool Widget::alpha() const { return prv_->style_ == TRANSLUCENT; }
+
+    void Widget::show() { prv_->state_ = NORMAL; }
+
+    void Widget::hide() { prv_->state_ = HIDDEN; }
+
+    bool Widget::isVisible() const { return prv_->state_ != HIDDEN; }
 
     Pixmap Widget::compose() {
-        if (fillet_) {
-            return content().mask(buildFilletMask(content().size(), fillet_));
+        if (prv_->fillet_) {
+            return content().mask(prv_->mask_);
         }
         return content();
-    }
-
-    void Widget::setFillet(size_t radius)  {
-        if (!radius) return;
-        fillet_ = radius;
-        style_  = TRANSLUCENT;
-//        alpha_ = true;
     }
 
     bool Widget::contains(const Point &pos) const {
@@ -98,33 +181,31 @@ namespace jlib {
 
     }
 
-    void Widget::setShadow(int offset_x, int offset_y, double blur, double spread, xrgb_t color, bool inset) {
-        shadow_ = std::make_shared<basic_shadow>(*this);
-        shadow_->setOffsetX(offset_x);
-        shadow_->setOffsetY(offset_y);
-        shadow_->setBlur(blur);
-        shadow_->setSpread(spread);
-        shadow_->setColor(color);
-        shadow_->setInset(inset);
+    void Widget::decorateShadow(int offset_x, int offset_y, double blur, double spread, xrgb_t color, bool inset) {
+        prv_->shadow_ = std::make_shared<basic_shadow>(*this, spread, blur, color);
+        prv_->shadow_->setOffset(offset_x, offset_y);
+    }
+
+
+    basic_shadow::basic_shadow(Widget& widget, double spread, double blur, xrgb_t color)
+            : widget_(widget), offsetX_(0), offsetY_(0), inset_(false),
+              spread_(spread), blur_(blur), color_(color),
+              shadow_(generateShadow(widget, spread, blur, color)) {
+
     }
 
     int basic_shadow::x() const {
-        return (int) ((double) widget_.x() - (double) widget_.width() * (spread_ - 1.0) * 0.5 + offsetX_);
+
+        return (int) ((double) widget_.x() - spread_ + offsetX_);
     }
 
     int basic_shadow::y() const {
-        return (int) ((double) widget_.y() - (double) widget_.height() * (spread_ - 1.0) * 0.5 + offsetY_);
-    }
-
-    Pixmap basic_shadow::build() {
-        return widget_.content().shadow(blur_, spread_, color_, inset_);
+        return (int) ((double) widget_.y() - spread_ + offsetY_);
     }
 
     Point basic_shadow::pos() const {
-        return {x(), y()};
+        printf("shadow get x, widget : %s (%d, %d), spread : %d\n", widget_.uuid().c_str(), widget_.x(), widget_.y(), (int) spread_);
+        return {(int) ((double) widget_.x() - spread_ + offsetX_), (int) ((double) widget_.y() - spread_ + offsetY_)};
     }
 
-    basic_shadow::basic_shadow(Widget &widget)
-    : widget_(widget), offsetX_(0), offsetY_(0),
-    blur_(5), spread_(1.2), color_(0xFF000000), inset_(false) {}
 }
