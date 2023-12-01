@@ -6,11 +6,41 @@
 
 namespace jlib {
 
-    basic_pixmap::Storage::Storage(Size sz) : width_(sz.width), height_(sz.height) {
+    class basic_pixmap::PrivateStorage {
+    public:
+        explicit PrivateStorage(Size sz);
+        ~PrivateStorage();
+        xrgb_t  *data() const { return ptr_; }
+        size_t  width() const { return width_; }
+        size_t height() const { return height_; }
+    private:
+        xrgb_t *ptr_;
+        size_t width_, height_;
+    };
+
+    basic_pixmap::basic_pixmap() : ref_() {}
+
+    basic_pixmap::basic_pixmap(size_t w, size_t h) : ref_(std::make_shared<PrivateStorage>(Size{w, h})) {}
+
+    basic_pixmap::basic_pixmap(const Size &sz) : ref_(std::make_shared<PrivateStorage>(sz)) {}
+
+    bool basic_pixmap::empty() const { return ref_ == nullptr; }
+
+    size_t basic_pixmap::width() const { return empty() ? 0 : ref_->width(); }
+
+    size_t basic_pixmap::height() const { return empty() ? 0 : ref_->height(); }
+
+    xrgb_t *basic_pixmap::data() const { return ref_->data(); }
+
+    Size basic_pixmap::size() const { return {width(), height()}; }
+
+    xrgb_t *basic_pixmap::ref() const { return ref_->data(); }
+
+    basic_pixmap::PrivateStorage::PrivateStorage(Size sz) : width_(sz.width), height_(sz.height) {
         ptr_ = (xrgb_t *) ::malloc(sizeof(xrgb_t) * sz.width * sz.height);
     }
 
-    basic_pixmap::Storage::~Storage() {
+    basic_pixmap::PrivateStorage::~PrivateStorage() {
         if (ptr_) {
             ::free(ptr_);
             ptr_ = nullptr;

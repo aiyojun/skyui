@@ -15,6 +15,9 @@ namespace jlib {
 
         Size& operator=(const Size&) = default;
 
+        bool operator==(const Size& sz) const { return sz.width == width && sz.height == height; }
+        bool operator!=(const Size& sz) const { return sz.width != width || sz.height != height; }
+
         size_t width, height;
     };
 

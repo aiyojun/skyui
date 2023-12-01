@@ -11,13 +11,13 @@ class basic_shadow;
 
 using Shadow = std::shared_ptr<basic_shadow>;
 
-class Widget : public IEventHandle {
+class Widget {
 public:
     enum WidgetState { NORMAL, HIDDEN };
     enum WidgetStyle { SOLID = 0x01, TRANSLUCENT = 0x10  };
-    Widget(const Widget&) = default;
-    Widget& operator=(const Widget&) = default;
-    explicit Widget(const Size& sz, size_t radius = 0);
+    Widget(const Widget&) = delete;
+    Widget& operator=(const Widget&) = delete;
+    Widget(Widget *parent, const Size& sz, size_t radius = 0);
     virtual ~Widget() = default;
     const std::string& uuid() const;
     void show();
@@ -25,46 +25,56 @@ public:
     void move(int x, int y);
     void move(const Point& pos);
     void resize(const Size& sz);
-    void decorateShadow(int offset_x = 0, int offset_y = 0,
-                        double blur = 3.0, double spread = 5.0,
-                        xrgb_t color = 0x88000000, bool inset = false);
     int x() const;
     int y() const;
     int z() const;
     size_t  width() const;
     size_t height() const;
-    Pixmap  compose();
-    Pixmap& content();
-//    const Pixmap&   area() const;
+    Size size() const;
+    Point pos() const;
+    size_t fillet() const;
+    bool alpha() const;
+    bool isVisible() const;
+    bool contains(const Point &pos) const;
     const Pixmap&   mask() const;
     const Shadow& shadow() const;
-    Point       position() const;
-    size_t        fillet() const;
-    bool           alpha() const;
-    bool contains(const Point& pos) const;
-    bool isVisible() const;
-    virtual void paint();
+    Pixmap& canvas();
+    Pixmap compose();
+    virtual void onPaint();
+    void decorateShadow(int offset_x = 0, int offset_y = 0, double blur = 3.0, double spread = 5.0,
+                        xrgb_t color = 0x88000000, bool inset = false);
     // Events processing
-    void onMouseMove   (const MouseMoveEvent    &e) override;
-    void onMousePress  (const MousePressEvent   &e) override;
-    void onMouseRelease(const MouseReleaseEvent &e) override;
-    void onMouseWheel  (const MouseWheelEvent   &e) override;
-    void onKeyPress    (const KeyPressEvent     &e) override;
-    void onKeyRelease  (const KeyReleaseEvent   &e) override;
-    void onClick       (const MouseReleaseEvent &e) override;
-    void onResize      (const WindowResizeEvent &e) override;
+    virtual void onMouseEnter  (const MouseEvent        &e);
+    virtual void onMouseLeave  (const MouseEvent        &e);
+    virtual void onMouseMove   (const MouseMoveEvent    &e);
+    virtual void onMousePress  (const MousePressEvent   &e);
+    virtual void onMouseRelease(const MouseReleaseEvent &e);
+    virtual void onMouseWheel  (const MouseWheelEvent   &e);
+    virtual void onKeyPress    (const KeyPressEvent     &e);
+    virtual void onKeyRelease  (const KeyReleaseEvent   &e);
+    virtual void onClick       (const MouseReleaseEvent &e);
+    virtual void onResize      (const WindowResizeEvent &e);
 private:
-    class PrivateWidget;
-    using AutoPrivateWidget = std::shared_ptr<PrivateWidget>;
-    AutoPrivateWidget prv_;
+//    class PrivateWidget;
+//    using AutoPrivateWidget = std::shared_ptr<PrivateWidget>;
+//    AutoPrivateWidget prv_;
+    int         x_, y_, z_;
+    Pixmap      content_, mask_;
+    size_t      fillet_;
+    std::string uuid_;
+    WidgetState state_;
+    WidgetStyle style_;
+    Shadow      shadow_;
+    Widget      *parent_;
+    std::vector<Widget *> children_;
 };
+
+//using Widget = basic_widget;
 
 class basic_shadow {
 public:
     explicit basic_shadow(Widget& widget, double spread, double blur, xrgb_t color);
     basic_shadow(const basic_shadow&) = default;
-    void setOffsetX(double x) { offsetX_ = x; }
-    void setOffsetY(double y) { offsetY_ = y; }
     void setOffset(double x, double y) { offsetX_ = x; offsetY_ = y; }
     double offsetX() const { return offsetX_; }
     double offsetY() const { return offsetY_; }
@@ -77,12 +87,12 @@ public:
     int          y() const;
     Point      pos() const;
 private:
-    Widget  widget_;
-    Pixmap  shadow_;
-    double  offsetX_, offsetY_,
-            blur_, spread_;
-    xrgb_t  color_;
-    bool    inset_;
+    Widget &widget_;
+    Pixmap shadow_;
+    double offsetX_, offsetY_,
+           blur_, spread_;
+    xrgb_t color_;
+    bool   inset_;
 };
 
 }

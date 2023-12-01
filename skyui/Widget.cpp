@@ -31,16 +31,10 @@ namespace {
     }
 
     jlib::Pixmap generateShadow(jlib::Widget& widget, double spread, double blur, jlib::xrgb_t color) {
-        printf("shadow parameters => blur : %f, spread : %f\n", blur, spread);
         size_t width, height, outbox_width, outbox_height;
         width = widget.width(); height = widget.height();
         jlib::Pixmap pxm = widget.mask();
-        if (pxm.empty()) {
-            printf("shadow use content, not mask\n");
-            pxm = widget.content();
-        } else {
-            printf("shadow use mask\n");
-        }
+        if (pxm.empty()) pxm = widget.canvas();
         outbox_width = (size_t) ((double) width + spread * 2);
         outbox_height = (size_t) ((double) height + spread * 2);
         jlib::Pixmap outbox(outbox_width, outbox_height);
@@ -67,125 +61,115 @@ namespace {
 
 namespace jlib {
 
-    class Widget::PrivateWidget {
-    public:
-        PrivateWidget(const Size& sz, size_t radius);
-        int         x_, y_, z_;
-        Pixmap      content_, mask_;
-        size_t      fillet_;
-        std::string uuid_;
-        WidgetState state_;
-        WidgetStyle style_;
-        Shadow      shadow_;
-    };
+//    class basic_widget::PrivateWidget {
+//    public:
+//        PrivateWidget(basic_widget *parent, const Size& sz, size_t radius);
+//
+//    };
 
-    Widget::PrivateWidget::PrivateWidget(const Size& sz, size_t radius)
+//    basic_widget::PrivateWidget::PrivateWidget(basic_widget *parent, const Size& sz, size_t radius)
+//            : x_(0), y_(0), z_(0), content_(Pixmap(sz)),
+//              mask_(radius != 0 ? buildFilletMask(sz, radius) : Pixmap()),
+//              fillet_(radius), uuid_(generate_uuid()), state_(NORMAL),
+//              style_(radius != 0 ? TRANSLUCENT : SOLID), shadow_(nullptr),
+//              parent_(parent), children_() {
+//        if (parent) {
+//            parent->/* prv_-> */children_.emplace_back(this);
+//        }
+//    }
+
+    Widget::Widget(Widget *parent, const Size& sz, size_t radius)
     : x_(0), y_(0), z_(0), content_(Pixmap(sz)),
       mask_(radius != 0 ? buildFilletMask(sz, radius) : Pixmap()),
       fillet_(radius), uuid_(generate_uuid()), state_(NORMAL),
-      style_(radius != 0 ? TRANSLUCENT : SOLID), shadow_(nullptr) {
-
+      style_(radius != 0 ? TRANSLUCENT : SOLID), shadow_(nullptr),
+      parent_(parent), children_() {
+        if (parent) parent->children_.emplace_back(this);
     }
 
-    Widget::Widget(const Size &sz, size_t radius)
-            : prv_(std::make_shared<PrivateWidget>(sz, radius)) {}
+//    basic_widget::basic_widget(Widget parent, const Size &sz, size_t radius)
+//            : prv_(std::make_shared<PrivateWidget>(parent, sz, radius)) {}
 
-    const std::string &Widget::uuid() const { return prv_->uuid_; }
+    const std::string &Widget::uuid() const { return /* prv_-> */uuid_; }
 
-    void Widget::move(int x, int y) {
-        prv_->x_ = x;
-        prv_->y_ = y;
-    }
+    void Widget::move(int x, int y) { /* prv_-> */x_ = x; /* prv_-> */y_ = y; }
 
-    void Widget::move(const Point &pos) {
-        prv_->x_ = pos.x;
-        prv_->y_ = pos.y;
-    }
+    void Widget::move(const Point &pos) { /* prv_-> */x_ = pos.x; /* prv_-> */y_ = pos.y; }
 
-    int Widget::x() const { return prv_->x_; }
+    int Widget::x() const { return /* prv_-> */x_; }
 
-    int Widget::y() const { return prv_->y_; }
+    int Widget::y() const { return /* prv_-> */y_; }
 
-    int Widget::z() const { return prv_->z_; }
+    int Widget::z() const { return /* prv_-> */z_; }
 
-    size_t Widget::width() const { return prv_->content_.width(); }
+    size_t Widget::width() const { return /* prv_-> */content_.width(); }
 
-    size_t Widget::height() const { return prv_->content_.height(); }
+    size_t Widget::height() const { return /* prv_-> */content_.height(); }
 
-    Pixmap &Widget::content() { return prv_->content_; }
+    Pixmap &Widget::canvas() { return /* prv_-> */content_; }
 
-    const Pixmap &Widget::mask() const { return prv_->mask_; }
+    const Pixmap &Widget::mask() const { return /* prv_-> */mask_; }
 
-    const Shadow &Widget::shadow() const { return prv_->shadow_; }
+    const Shadow &Widget::shadow() const { return /* prv_-> */shadow_; }
 
-    Point Widget::position() const { return {prv_->x_, prv_->y_}; }
+    Point Widget::pos() const { return {/* prv_-> */x_, /* prv_-> */y_}; }
 
-    size_t Widget::fillet() const { return prv_->fillet_; }
+    size_t Widget::fillet() const { return /* prv_-> */fillet_; }
 
-    bool Widget::alpha() const { return prv_->style_ == TRANSLUCENT; }
+    bool Widget::alpha() const { return /* prv_-> */style_ == TRANSLUCENT; }
 
-    void Widget::show() { prv_->state_ = NORMAL; }
+    void Widget::show() { /* prv_-> */state_ = NORMAL; }
 
-    void Widget::hide() { prv_->state_ = HIDDEN; }
+    void Widget::hide() { /* prv_-> */state_ = HIDDEN; }
 
-    bool Widget::isVisible() const { return prv_->state_ != HIDDEN; }
+    bool Widget::isVisible() const { return /* prv_-> */state_ != HIDDEN; }
 
     Pixmap Widget::compose() {
-        if (prv_->fillet_) {
-            return content().mask(prv_->mask_);
+        if (/* prv_-> */fillet_) {
+            return canvas().mask(/* prv_-> */mask_);
         }
-        return content();
+        return canvas();
     }
 
     bool Widget::contains(const Point &pos) const {
         return pos.x >= x() && pos.x <= x() + width() && pos.y >= y() && pos.y <= y() + height();
     }
 
-    void Widget::onMouseMove(const MouseMoveEvent& e) {
-        printf("[onMouseMove] \n");
-    }
+    void Widget::onMouseMove(const MouseMoveEvent& e) {}
 
-    void Widget::onMousePress(const MousePressEvent& e) {
-        printf("[onMousePress] \n");
-    }
+    void Widget::onMousePress(const MousePressEvent& e) {}
 
-    void Widget::onMouseRelease(const MouseReleaseEvent& e) {
-        printf("[onMouseRelease] \n");
-    }
+    void Widget::onMouseRelease(const MouseReleaseEvent& e) {}
 
-    void Widget::onMouseWheel(const MouseWheelEvent& e) {
-        printf("[onMouseWheel] \n");
-    }
+    void Widget::onMouseWheel(const MouseWheelEvent& e) {}
 
-    void Widget::onKeyPress(const KeyPressEvent& e) {
-        printf("[onKeyPress] \n");
-    }
+    void Widget::onKeyPress(const KeyPressEvent& e) {}
 
-    void Widget::onKeyRelease(const KeyReleaseEvent & e) {
-        printf("[onKeyRelease] \n");
-    }
+    void Widget::onKeyRelease(const KeyReleaseEvent & e) {}
 
-    void Widget::onClick(const MouseReleaseEvent& e) {
-        printf("[onClick] view %s\n", uuid().c_str());
-    }
+    void Widget::onClick(const MouseReleaseEvent& e) {}
 
-    void Widget::resize(const Size &sz) {
-
-    }
+    void Widget::resize(const Size &sz) {}
 
     void Widget::onResize(const WindowResizeEvent &e) {
-
+        if (e->size() != size())
+            content_ = Pixmap(e->size());
     }
 
-    void Widget::paint() {
-
-    }
+    void Widget::onPaint() {}
 
     void Widget::decorateShadow(int offset_x, int offset_y, double blur, double spread, xrgb_t color, bool inset) {
-        prv_->shadow_ = std::make_shared<basic_shadow>(*this, spread, blur, color);
-        prv_->shadow_->setOffset(offset_x, offset_y);
+        /* prv_-> */shadow_ = std::make_shared<basic_shadow>(*this, spread, blur, color);
+        /* prv_-> */shadow_->setOffset(offset_x, offset_y);
     }
 
+    void Widget::onMouseEnter(const MouseEvent &e) {}
+
+    void Widget::onMouseLeave(const MouseEvent &e) {}
+
+    Size Widget::size() const {
+        return content_.size();
+    }
 
     basic_shadow::basic_shadow(Widget& widget, double spread, double blur, xrgb_t color)
             : widget_(widget), offsetX_(0), offsetY_(0), inset_(false),
@@ -195,7 +179,6 @@ namespace jlib {
     }
 
     int basic_shadow::x() const {
-
         return (int) ((double) widget_.x() - spread_ + offsetX_);
     }
 
@@ -204,7 +187,6 @@ namespace jlib {
     }
 
     Point basic_shadow::pos() const {
-        printf("shadow get x, widget : %s (%d, %d), spread : %d\n", widget_.uuid().c_str(), widget_.x(), widget_.y(), (int) spread_);
         return {(int) ((double) widget_.x() - spread_ + offsetX_), (int) ((double) widget_.y() - spread_ + offsetY_)};
     }
 

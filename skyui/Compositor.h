@@ -10,28 +10,27 @@
 
 namespace jlib {
 
-class Compositor : public IEventHandle {
+class Compositor {
 public:
     explicit Compositor(const Size& sz);
     Compositor(const Compositor&) = default;
     void flush();
-    void push(const Widget& v) { stack_.emplace_back(v); }
+    void push(Widget *v) { stack_.emplace_back(v); }
     Pixmap& framebuffer() { return framebuffer_; }
     void dispatch(const Event& e);
     void setDisplay(IBuffer *p) { display_ = p; }
-    Widget* locate(const Point& pos);
+    Widget *locate(const Point& pos);
     // events agent
-    void onMouseMove(const MouseMoveEvent& e) override;
-    void onMousePress(const MousePressEvent& e) override;
-    void onMouseRelease(const MouseReleaseEvent& e) override;
-    void onMouseWheel(const MouseWheelEvent& e) override;
-    void onKeyPress(const KeyPressEvent& e) override;
-    void onKeyRelease(const KeyReleaseEvent & e) override;
-    void onClick(const MouseReleaseEvent& e) override;
-    void onResize(const jlib::WindowResizeEvent &e) override;
+    void onMouseMove(const MouseMoveEvent& e);
+    void onMousePress(const MousePressEvent& e);
+    void onMouseRelease(const MouseReleaseEvent& e);
+    void onMouseWheel(const MouseWheelEvent& e);
+    void onKeyPress(const KeyPressEvent& e);
+    void onKeyRelease(const KeyReleaseEvent & e);
+    void onResize(const jlib::WindowResizeEvent &e);
 
 private:
-    std::vector<Widget> stack_;
+    std::vector<Widget *> stack_;
     Pixmap framebuffer_;
     IBuffer *display_;
 };

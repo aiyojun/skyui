@@ -39,10 +39,10 @@ int main(int argc, char* argv[]) {
 
     jlib::Button btn0("ok");
     btn0.move(100, 50);
-    compositor.push(btn0);
+    compositor.push(&btn0);
     compositor.flush();
 
-    jlib::Window window(compositor.framebuffer(), 1000, 1000, "Pretty GUI");
+    jlib::Window window(&compositor, 1000, 1000, "Pretty GUI");
     WindowDisplayBuffer wdb;
     compositor.setDisplay(&wdb);
     gw = &window;

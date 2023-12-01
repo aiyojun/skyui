@@ -11,9 +11,15 @@ namespace jlib {
         ~Button() override = default;
         void setText(const std::string& text) { text_ = text; }
         const std::string& getText() const { return text_; }
-        void paint() override;
+        void onPaint() override;
+        void onMouseEnter(const jlib::MouseEvent &e) override;
+        void onMouseLeave(const jlib::MouseEvent &e) override;
+        void onMousePress(const jlib::MousePressEvent &e) override;
+        void onMouseRelease(const jlib::MouseReleaseEvent &e) override;
     private:
         std::string text_;
+        bool hover_;
+        bool pressed_;
     };
 
 } // jlib
