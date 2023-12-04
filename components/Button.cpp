@@ -1,10 +1,11 @@
 #include "Button.h"
 #include <utility>
+#include <algorithm>
 
 namespace jlib {
 
     Button::Button(std::string text, const Size &size)
-            : Widget(nullptr, size, 6), text_(std::move(text)), hover_(false), pressed_(false) {
+            : Widget(size, 6), text_(std::move(text)), hover_(false), pressed_(false) {
         decorateShadow(3, 3);
     }
 
@@ -38,6 +39,14 @@ namespace jlib {
 
     void Button::onMouseRelease(const MouseReleaseEvent &e) {
         pressed_ = false;
+    }
+
+    void Button::onClick(const MouseReleaseEvent &e) {
+        activate(EventType::ETClick);
+    }
+
+    void Button::clicked(const std::function<void()>& hd) {
+        bind(EventType::ETClick, hd);
     }
 
 } // jlib

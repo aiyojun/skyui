@@ -1,6 +1,8 @@
 #ifndef WIDGET_H
 #define WIDGET_H
 
+#include <functional>
+#include <map>
 #include "basic_ds.h"
 #include "Pixmap.h"
 #include "Event.h"
@@ -17,30 +19,32 @@ public:
     enum WidgetStyle { SOLID = 0x01, TRANSLUCENT = 0x10  };
     Widget(const Widget&) = delete;
     Widget& operator=(const Widget&) = delete;
-    Widget(Widget *parent, const Size& sz, size_t radius = 0);
+    explicit Widget(const Size& sz, size_t radius = 0);
     virtual ~Widget() = default;
-    const std::string& uuid() const;
-    void show();
-    void hide();
-    void move(int x, int y);
-    void move(const Point& pos);
-    void resize(const Size& sz);
-    int x() const;
-    int y() const;
-    int z() const;
-    size_t  width() const;
-    size_t height() const;
-    Size size() const;
-    Point pos() const;
-    size_t fillet() const;
-    bool alpha() const;
-    bool isVisible() const;
+    void                     show();
+    void                     hide();
+    void         move(int x, int y);
+    void     move(const Point& pos);
+    void     resize(const Size& sz);
+    const std::string&       uuid() const;
+    int                         x() const;
+    int                         y() const;
+    int                         z() const;
+    size_t                  width() const;
+    size_t                 height() const;
+    Size                     size() const;
+    Point                     pos() const;
+    size_t                 fillet() const;
+    bool                    alpha() const;
+    bool                isVisible() const;
+    const Pixmap&            mask() const;
+    const Shadow&          shadow() const;
     bool contains(const Point &pos) const;
-    const Pixmap&   mask() const;
-    const Shadow& shadow() const;
-    Pixmap& canvas();
-    Pixmap compose();
-    virtual void onPaint();
+    Pixmap&                canvas();
+    Pixmap                compose();
+    virtual void          onPaint();
+    void bind(EventType e, const std::function<void()>& fn);
+    void activate(EventType e);
     void decorateShadow(int offset_x = 0, int offset_y = 0, double blur = 3.0, double spread = 5.0,
                         xrgb_t color = 0x88000000, bool inset = false);
     // Events processing
@@ -54,10 +58,9 @@ public:
     virtual void onKeyRelease  (const KeyReleaseEvent   &e);
     virtual void onClick       (const MouseReleaseEvent &e);
     virtual void onResize      (const WindowResizeEvent &e);
+protected:
+    std::map<EventType, std::vector<std::function<void()>>> listeners_;
 private:
-//    class PrivateWidget;
-//    using AutoPrivateWidget = std::shared_ptr<PrivateWidget>;
-//    AutoPrivateWidget prv_;
     int         x_, y_, z_;
     Pixmap      content_, mask_;
     size_t      fillet_;
@@ -65,11 +68,9 @@ private:
     WidgetState state_;
     WidgetStyle style_;
     Shadow      shadow_;
-    Widget      *parent_;
-    std::vector<Widget *> children_;
 };
 
-//using Widget = basic_widget;
+using SkyWidget = std::shared_ptr<Widget>;
 
 class basic_shadow {
 public:

@@ -1,8 +1,7 @@
-#include <random>
-#include <stdexcept>
 #include <Magick++/Image.h>
 #include "Painter.h"
 #include "Widget.h"
+#include "utils.h"
 
 namespace {
 
@@ -15,19 +14,6 @@ namespace {
         mask.fill(0x00FFFFFF);
         painter.drawRect({0, 0}, (int) mask.width(), (int) mask.height(), radius);
         return mask;
-    }
-
-    std::string generate_uuid(int n = 6) {
-        std::string uuid;
-        static std::default_random_engine e(time(nullptr));
-        static std::uniform_int_distribution<int> u(0,15);
-        char mapper[] = {
-                '0', '1', '2', '3', '4', '5', '6', '7',
-                '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-        for (int i = 0; i < n; i++) {
-            uuid += mapper[u(e)];
-        }
-        return uuid;
     }
 
     jlib::Pixmap generateShadow(jlib::Widget& widget, double spread, double blur, jlib::xrgb_t color) {
@@ -61,34 +47,11 @@ namespace {
 
 namespace jlib {
 
-//    class basic_widget::PrivateWidget {
-//    public:
-//        PrivateWidget(basic_widget *parent, const Size& sz, size_t radius);
-//
-//    };
-
-//    basic_widget::PrivateWidget::PrivateWidget(basic_widget *parent, const Size& sz, size_t radius)
-//            : x_(0), y_(0), z_(0), content_(Pixmap(sz)),
-//              mask_(radius != 0 ? buildFilletMask(sz, radius) : Pixmap()),
-//              fillet_(radius), uuid_(generate_uuid()), state_(NORMAL),
-//              style_(radius != 0 ? TRANSLUCENT : SOLID), shadow_(nullptr),
-//              parent_(parent), children_() {
-//        if (parent) {
-//            parent->/* prv_-> */children_.emplace_back(this);
-//        }
-//    }
-
-    Widget::Widget(Widget *parent, const Size& sz, size_t radius)
+    Widget::Widget(const Size& sz, size_t radius)
     : x_(0), y_(0), z_(0), content_(Pixmap(sz)),
       mask_(radius != 0 ? buildFilletMask(sz, radius) : Pixmap()),
       fillet_(radius), uuid_(generate_uuid()), state_(NORMAL),
-      style_(radius != 0 ? TRANSLUCENT : SOLID), shadow_(nullptr),
-      parent_(parent), children_() {
-        if (parent) parent->children_.emplace_back(this);
-    }
-
-//    basic_widget::basic_widget(Widget parent, const Size &sz, size_t radius)
-//            : prv_(std::make_shared<PrivateWidget>(parent, sz, radius)) {}
+      style_(radius != 0 ? TRANSLUCENT : SOLID), shadow_(nullptr) {}
 
     const std::string &Widget::uuid() const { return /* prv_-> */uuid_; }
 
@@ -149,11 +112,15 @@ namespace jlib {
 
     void Widget::onClick(const MouseReleaseEvent& e) {}
 
-    void Widget::resize(const Size &sz) {}
+    void Widget::resize(const Size &sz) {
+        if (sz != size())
+            content_ = Pixmap(sz);
+    }
 
     void Widget::onResize(const WindowResizeEvent &e) {
-        if (e->size() != size())
-            content_ = Pixmap(e->size());
+        resize(e->size());
+//        if (e->size() != size())
+//            content_ = Pixmap(e->size());
     }
 
     void Widget::onPaint() {}
@@ -169,6 +136,23 @@ namespace jlib {
 
     Size Widget::size() const {
         return content_.size();
+    }
+
+    void Widget::bind(EventType e, const std::function<void()> &fn) {
+        if (listeners_.find(e) == listeners_.end())
+            listeners_[e] = {};
+        listeners_[e].emplace_back(fn);
+    }
+
+    void Widget::activate(EventType e) {
+        if (listeners_.find(e) == listeners_.end()) return;
+        for (const auto& listener : listeners_[e]) {
+            try {
+                listener();
+            } catch (std::exception& e) {
+                fprintf(stderr, "error: %s", e.what());
+            }
+        }
     }
 
     basic_shadow::basic_shadow(Widget& widget, double spread, double blur, xrgb_t color)

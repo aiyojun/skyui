@@ -4,7 +4,6 @@
 #include "./Application.h"
 #include "./basic_ds.h"
 #include "./Color.h"
-#include "./Compositor.h"
 #include "./Event.h"
 #include "./Font.h"
 #include "./Painter.h"

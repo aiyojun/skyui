@@ -53,14 +53,22 @@ namespace jlib {
     }
 
     void basic_pixmap::cover(const basic_pixmap &pxm, const Point &pos) {
+        printf("-- cover 1\n");
         xrgb_t *srcImg = data(), *dstImg = pxm.data();
-        size_t srcWidth = width();
-        size_t w = pxm.width();
+        size_t srcWidth = width(), srcHeight = height();
+        size_t w = pxm.width(), h = pxm.height();
+        printf("-- cover 2\n");
         if (pos.x + w > srcWidth)
             w = srcWidth - pos.x;
-        for (int j = 0; j < pxm.height(); j++) {
-            memcpy(srcImg + (pos.y + j) * srcWidth + pos.x, dstImg + j * pxm.width(), sizeof(xrgb_t) * w);
+        size_t l = pos.y + h;
+        if (l > srcHeight)
+            h = l - srcHeight;
+        printf("-- cover 3\n");
+        for (int j = 0; j < h - 1; j++) {
+            printf("-- cover 3.1 %d\n", j);
+            memcpy(srcImg + (pos.y + j) * srcWidth + pos.x, dstImg + j * pxm.width(), sizeof(xrgb_t) * (w - 1));
         }
+        printf("-- cover 4\n");
     }
 
     void basic_pixmap::blend(const basic_pixmap &pxm, const Point &p) {
@@ -146,6 +154,10 @@ namespace jlib {
         basic_pixmap bak(size());
         ::memcpy(bak.data(), data(), width() * height() * sizeof(xrgb_t));
         return bak;
+    }
+
+    std::string basic_pixmap::to_string() const {
+        return "Pixmap " + std::to_string(width()) + "X" + std::to_string(height());
     }
 
 } // jlib

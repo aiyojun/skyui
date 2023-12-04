@@ -1,28 +1,19 @@
-#include <Magick++/Functions.h>
 #include "Application.h"
-#include "Window.h"
+#include <Magick++/Functions.h>
 
 namespace jlib {
 
-Application::Application(int argc, char* argv[]) {
-    prepare();
-}
+    Application *Application::instance_ = nullptr;
 
-Application::~Application() {
-    dispose();
-}
+    Application &Application::getInstance() {
+        if (!instance_) {
+            instance_ = new Application();
+        }
+        return *instance_;
+    }
 
-void Application::prepare() {
-    Magick::InitializeMagick(nullptr);
-}
-
-void Application::dispose() {
-
-}
-
-int Application::run(Window *window) {
-    window->run();
-    return 0;
-}
+    void Application::prepare() {
+        Magick::InitializeMagick(nullptr);
+    }
 
 } // jlib

@@ -8,9 +8,9 @@
 namespace jlib {
 
     enum EventType {
-        MouseWheel, MouseMove, MousePress,
-        MouseRelease, KeyPress, KeyRelease,
-        WindowResize,
+        ETMouseWheel, ETMouseMove, ETMousePress,
+        ETMouseRelease, ETKeyPress, ETKeyRelease,
+        ETWindowResize, ETClick,
     };
 
     class basic_event {
@@ -68,13 +68,13 @@ namespace jlib {
 
     class basic_mouse_move_event : public basic_mouse_event {
     public:
-        basic_mouse_move_event(int x, int y) : basic_mouse_event(MouseMove, x, y) {}
+        basic_mouse_move_event(int x, int y) : basic_mouse_event(ETMouseMove, x, y) {}
         ~basic_mouse_move_event() override = default;
     };
 
     class basic_mouse_press_event : public basic_mouse_event {
     public:
-        basic_mouse_press_event(int x, int y, MouseButton bt) : basic_mouse_event(MousePress, x, y), button_(bt) {}
+        basic_mouse_press_event(int x, int y, MouseButton bt) : basic_mouse_event(ETMousePress, x, y), button_(bt) {}
         ~basic_mouse_press_event() override = default;
         MouseButton button() const { return button_; }
     private:
@@ -83,7 +83,7 @@ namespace jlib {
 
     class basic_mouse_release_event : public basic_mouse_event {
     public:
-        basic_mouse_release_event(int x, int y, MouseButton bt) : basic_mouse_event(MouseRelease, x, y), button_(bt) {}
+        basic_mouse_release_event(int x, int y, MouseButton bt) : basic_mouse_event(ETMouseRelease, x, y), button_(bt) {}
         ~basic_mouse_release_event() override = default;
         MouseButton button() const { return button_; }
     private:
@@ -92,7 +92,7 @@ namespace jlib {
 
     class basic_mouse_wheel_event : public basic_mouse_event {
     public:
-        basic_mouse_wheel_event(int x, int y, int delta) : basic_mouse_event(MouseWheel, x, y), delta_(delta) {}
+        basic_mouse_wheel_event(int x, int y, int delta) : basic_mouse_event(ETMouseWheel, x, y), delta_(delta) {}
         ~basic_mouse_wheel_event() override = default;
         int delta() const { return delta_; }
     private:
@@ -101,7 +101,7 @@ namespace jlib {
 
     class basic_key_press_event : public basic_event {
     public:
-        explicit basic_key_press_event(size_t key) : basic_event(KeyPress), key_(key) {}
+        explicit basic_key_press_event(size_t key) : basic_event(ETKeyPress), key_(key) {}
         ~basic_key_press_event() override = default;
         size_t key() const { return key_; }
     private:
@@ -110,7 +110,7 @@ namespace jlib {
 
     class basic_key_release_event : public basic_event {
     public:
-        explicit basic_key_release_event(size_t key) : basic_event(KeyRelease), key_(key) {}
+        explicit basic_key_release_event(size_t key) : basic_event(ETKeyRelease), key_(key) {}
         ~basic_key_release_event() override = default;
         size_t key() const { return key_; }
     private:
@@ -119,7 +119,7 @@ namespace jlib {
 
     class basic_window_resize_event : public basic_event {
     public:
-        explicit basic_window_resize_event(const Size& sz) : basic_event(WindowResize), size_(sz) {}
+        explicit basic_window_resize_event(const Size& sz) : basic_event(ETWindowResize), size_(sz) {}
         ~basic_window_resize_event() override = default;
         const Size& size() const { return size_; }
     private:

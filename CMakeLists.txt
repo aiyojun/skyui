@@ -18,10 +18,15 @@ add_executable(skyuidemo
         skyui/Color.cpp
         skyui/Font.cpp
         skyui/Painter.cpp
-        skyui/Window.cpp
+#        skyui/Window.cpp
         skyui/Widget.cpp
-        skyui/Compositer.cpp
-        skyui/Shadow.cpp
+#        skyui/Compositer.cpp
+#        skyui/System.cpp
         components/Button.cpp
-        components/Button.h
+        skyui/Window.cpp
+        skyui/Window.h
+        skyui/utils.cpp
+        skyui/utils.h
+        components/Image.cpp
+        components/Image.h
 )

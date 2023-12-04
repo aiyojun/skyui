@@ -3,18 +3,15 @@
 
 namespace jlib {
 
-class Window;
-class FontEngine;
-
 class Application {
 public:
-    Application(int argc, char* argv[]);
-    ~Application();
-
-    int run(Window *window);
-private:
+    static Application& getInstance();
+    Application(const Application&) = delete;
     void prepare();
-    void dispose();
+private:
+    Application() = default;
+    ~Application() = default;
+    static Application *instance_;
 };
 
 } // jlib

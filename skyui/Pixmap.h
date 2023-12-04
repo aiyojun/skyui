@@ -30,6 +30,7 @@ public:
     basic_pixmap mask(const basic_pixmap& msk) const
     { return basic_pixmap::mask(*this, msk); }
     static basic_pixmap mask(const basic_pixmap& pxm, const basic_pixmap& msk);
+    std::string to_string() const;
 private:
     class PrivateStorage;
     using AutoStorage = std::shared_ptr<PrivateStorage>;
